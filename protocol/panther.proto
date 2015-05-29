@@ -1,0 +1,79 @@
+package se.lth.immun.protocol;
+
+option java_package = "se.lth.immun.protocol";
+option java_outer_classname = "MSDataProtocol";
+
+
+// CLIENT TO SERVER
+
+message Bounds {
+	optional double lmz = 1;
+	optional double hmz = 2;
+}
+
+message FragmentBounds {
+	optional Bounds precursor = 1;
+	optional Bounds fragment = 2; 
+}
+
+message GetTracesFor {
+	repeated Bounds precursor = 2;
+	repeated FragmentBounds fragment = 3;
+}
+
+message GetStatus {}
+
+message MasterRequest {
+	optional GetStatus getStatus = 1;
+	optional GetTracesFor getTracesFor = 2;
+}
+
+
+
+// SERVER TO CLIENT
+
+message Trace {
+	repeated double time = 1;
+	repeated double intensity = 2;
+}
+
+message PrecursorTrace {
+	optional Bounds precursor = 1;
+	optional Trace trace = 2;
+}
+
+message FragmentTrace {
+	optional FragmentBounds fragment = 1;
+	optional Trace trace = 2;
+}
+
+message Traces {
+	repeated PrecursorTrace precursor = 1;
+	repeated FragmentTrace fragment = 2;
+}
+
+message Status {
+	enum StatusType {
+		loadingMzML = 1;
+		up = 2;
+	}
+	required StatusType status = 1;
+	optional string statusMsg = 2;
+	optional double progress = 3;
+	optional double progressMax = 4;
+}
+
+message Error {
+	required int32 type = 1;
+	required string msg = 2;
+}
+
+message ReplySize {
+	required fixed32 size = 1;
+}
+
+message MasterReply {
+	optional Status status = 1;
+	optional Traces traces = 2;
+	optional Error error = 99;
+}
