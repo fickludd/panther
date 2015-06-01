@@ -2,13 +2,9 @@ package se.lth.immun
 
 import akka.actor._
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.io.{ IO, Tcp }
-import akka.util.ByteString
-import akka.util.CompactByteString
 import java.net.InetSocketAddress
-import java.nio.ByteBuffer
+import se.lth.immun.protocol.MSDataProtocolActors
 import se.lth.immun.protocol.MSDataProtocol._
-import Tcp._
 
 import scala.util.Random
 
@@ -18,89 +14,26 @@ object Kitten {
 	
 	def main(args: Array[String]) = {
 		val system = ActorSystem()
-		val kittenListener = system.actorOf(Props[Listener])
-		val kitten = system.actorOf(Client.props(new InetSocketAddress("localhost", 12345), kittenListener), name = "client")
+		val server = new InetSocketAddress("localhost", 12345)
+		val infinitePoller = system.actorOf(Props[InfinitePoller])
+		val client = system.actorOf(MSDataProtocolActors.ClientInitiator.props(server, infinitePoller))
 		system.awaitTermination
 	}
 
-	object Client {
-		def props(remote: InetSocketAddress, replies: ActorRef) =
-			Props(classOf[Client], remote, replies)
-	}
+	class InfinitePoller extends Actor {
 
-	class Client(remote: InetSocketAddress, listener: ActorRef) extends Actor {
-
-		import context.system
-
-		IO(Tcp) ! Connect(remote)
-
-		def receive = {
-			case CommandFailed(_: Connect) =>
-				listener ! "connect failed"
-				context stop self
-
-			case c @ Connected(remote, local) =>
-				println("connected to " + remote)
-				val connection = sender()
-				connection ! Register(self)
-				context become {
-					case data: ByteString =>
-						//println("CLIENT: wrote %d bytes".format(data.length))
-						connection ! Write(data)
-					case CommandFailed(w: Write) =>
-						println("CLIENT: cmd failed")
-						// O/S buffer was full
-						listener ! "write failed"
-					case Received(data) =>
-						//println("CLIENT: got %d bytes".format(data.length))
-						listener ! data
-					case "close" =>
-						println("CLIENT: closing")
-						connection ! Close
-					case _: ConnectionClosed =>
-						listener ! "connection closed"
-						context stop self
-				}
-				listener ! c
-		}
-	}
-
-	class Listener extends Actor {
-
-		var sendTime:Long = _
-		
-		var repSize:Int = 0
-		var dataBuffer = ByteString()
+		import MSDataProtocolActors._
 		
 		def receive = {
 			case msg: String =>
 				println(msg)
 
-			case c @ Connected(remote, local) =>
-				sendRand
+			case MSDataProtocolConnected(remote, local) =>
+				sender ! reqRandAssay(3, 6)
  
-			case data: ByteString =>
-				//println(data.decodeString("utf-8"))
-				
-				if (repSize == 0) {
-					val sizeMsg = ReplySize.parseFrom(data.take(5).toArray)
-					repSize = sizeMsg.getSize
-					dataBuffer = data.drop(5)
-				} else 
-					dataBuffer = dataBuffer ++ data
-				
-				if (dataBuffer.length == repSize) {
-					val msg = MasterReply.parseFrom(dataBuffer.toArray)
-					println("CLIENT: parsed %d bytes: %d".format(dataBuffer.length, dataBuffer.map(_.toLong).sum))
-					println("round time %d ms".format(System.currentTimeMillis - sendTime))
-					repSize = 0
-					sendRand
-				}
-		}
-		
-		def sendRand = {
-			sendTime = System.currentTimeMillis
-			sender ! reqRandAssay(3, 6)
+			case MSDataReply(msg, nBytes, checkSum, timeTaken) =>
+				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
+				sender ! reqRandAssay(3, 6)
 		}
 		
 		
@@ -120,7 +53,7 @@ object Kitten {
 						.setFragment(Bounds.newBuilder.setLmz(mz2-diff2).setHmz(mz2+diff2))
 					)
 			}
-			ByteString() ++ MasterRequest.newBuilder.setGetTracesFor(req).build.toByteArray
+			MasterRequest.newBuilder.setGetTracesFor(req).build
 		}
 		
 		def randMzAndDiff = {
@@ -135,7 +68,7 @@ object Kitten {
 			val req = GetTracesFor.newBuilder()
 				.addPrecursor(Bounds.newBuilder().setLmz(mz).setHmz(mz + mzWidth))
 
-			ByteString() ++ MasterRequest.newBuilder.setGetTracesFor(req).build.toByteArray
+			MasterRequest.newBuilder.setGetTracesFor(req).build
 		}
 
 		
@@ -149,7 +82,7 @@ object Kitten {
 						.setFragment(
 							Bounds.newBuilder().setLmz(fragMz).setHmz(fragMz + mzWidth)))
 
-			ByteString() ++ MasterRequest.newBuilder.setGetTracesFor(req).build.toByteArray
+			MasterRequest.newBuilder.setGetTracesFor(req).build
 		}
 		
 		

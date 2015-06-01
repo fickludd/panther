@@ -1,0 +1,31 @@
+package se.lth.immun
+
+import se.jt.CLIApp
+import java.util.Properties
+
+import akka.actor._
+
+object CatSight extends CLIApp {
+
+	val params = new CatSightParams
+	
+	var properties = new Properties
+	properties.load(this.getClass.getResourceAsStream("/pom.properties"))
+	val name 		= properties.getProperty("pom.artifactId")
+	val version 	= properties.getProperty("pom.version")
+	
+	
+	def main(args:Array[String]) = {
+		failOnError(parseArgs(name, version, args, params, List("traML"), None))
+		
+		val system = ActorSystem()
+		
+		val swing = system.actorOf(
+				SwingActor.props(params).withDispatcher("swing-dispatcher"), 
+				"swing-actor"
+			)
+		
+		system.awaitTermination
+		println("done")
+	}
+}

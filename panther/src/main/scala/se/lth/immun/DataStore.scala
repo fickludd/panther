@@ -2,9 +2,9 @@ package se.lth.immun
 
 case class DataSpectrum(time:Double, mz:Seq[Double], intensity:Seq[Double]) {
 	def sum(lowMz:Double, highMz:Double):Double = {
-		val i0 = mz.indexWhere(_ > lowMz)
-		val in = mz.indexWhere(_ > highMz, i0)
-		intensity.slice(i0, in).sum
+		val i0 = mz.indexWhere(_ > lowMz) // first index where predicate hold
+		val in = mz.indexWhere(_ > highMz, i0) // same, starting from i0 
+		intensity.slice(i0, in).sum // slice: subsequence by indices.
 	}
 }
 case class DataTrace(time:Seq[Double], intensity:Seq[Double])
