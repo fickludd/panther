@@ -16,6 +16,8 @@ object TracePlotter {
 		Props(classOf[TracePlotter], swingActor)
 		
 	case class Datum(rt:Double, intensity:Double, id:String)
+	case class PopZoom(n:Int)
+	case class SetZoomFilter(f:(Datum, Int) => Boolean)
 }
 
 class TracePlotter(swingActor:ActorRef) extends Actor {
@@ -25,19 +27,15 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 	import Stratifier._
 	
 	var size = new Dimension(1000, 600)
-	var data:Option[ArrayBuffer[Datum]] = None
+	var plot:Option[LinePlot[Datum]] = None
 	
 	def receive = {
-		case t:Traces =>
-			println("got traces!!")
-			
 		case reply:MasterReply =>
-			println("got master reply!!")
 			if (reply.hasStatus)
 				println(reply.getStatus.getStatusMsg)
 			if (reply.hasTraces) {
-				data = Some(formatTraces(reply.getTraces))
-				swingActor ! plotTraces(data.get)
+				plot = Some(getTracePlot(reply.getTraces))
+				swingActor ! Util.drawToBuffer(size.width, size.height, plot.get)
 			
 			}
 			
@@ -46,13 +44,33 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 			
 		case d:Dimension =>
 			size = d
-			data.foreach(data =>
-					swingActor ! plotTraces(data)
+			plot.foreach(p =>
+					swingActor ! Util.drawToBuffer(size.width, size.height, p)
 				)
+				
+		case PopZoom(n) =>
+			plot match {
+				case None => {}
+				case Some(p) if p.filters.nonEmpty =>
+					p.filters.pop
+					swingActor ! Util.drawToBuffer(size.width, size.height, p)
+						
+				case Some(_) => {}
+			}
+			
+			
+		case SetZoomFilter(f) =>
+			plot match {
+				case None => {}
+				case Some(p) =>
+					p.filters.push(f)
+					swingActor ! Util.drawToBuffer(size.width, size.height, p)
+						
+			}
 	}
 	
 	
-	def formatTraces(t:Traces) = {
+	def getTracePlot(t:Traces) = {
 		val data = new ArrayBuffer[Datum]
 		println("Precursors:")
 		for (pTrace <- t.getPrecursorList) {
@@ -69,18 +87,10 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 			data ++= trace.map(t => Datum(t._1, t._2, id))
 		}
 		println("trying to plot %d data points".format(data.length))
-		data
-	}
-	
-	
-	def plotTraces(data:ArrayBuffer[Datum]) = {
-		val plot = new LinePlot(data)
-					.x(_.rt)
-					//.y(_.intensity)(log10Scale, doubleStratifier)
-					.y(_.intensity)
-					.color(_.id)
-		
-		
-		Util.drawToBuffer(size.width, size.height, plot)
+		new LinePlot(data)
+				.x(_.rt)
+				//.y(_.intensity)(log10Scale, doubleStratifier)
+				.y(_.intensity)
+				.color(_.id)
 	}
 }

@@ -7,25 +7,37 @@ import java.awt.Color
 class GUI(params: CatSightParams) extends SimpleSwingApplication {
 
 
-	val textArea = new TextArea {
-		text = "initial text\nline two"
-		background = Color.green
-	}
-	val loadAssay = new Button { text = "load assay" }
-	val gridPanel = new GridPanel(1, 2) {
-		contents += loadAssay
-		contents += new Label { text = "I'm a label" }
-		contents += textArea
-	}
+	
+	val addAssays = new Button { text = "add" }
+	val clearAssays = new Button { text = "clear" }
+	val searchField = new TextField
+	val saveAssays = new Button { text = "save" }
 	
 	val plotBuffer = new PlotBuffer
 	
+	val assayList = new ListView[Assay]
+	assayList.listData = (0 until 10).map(i => Assay.random(3, 6))
+	
+	val assayColumn = new BorderPanel {
+		val topGrid = new GridPanel(1, 2) {
+			contents += addAssays
+			contents += clearAssays
+		} 
+		val bottomGrid = new GridPanel(2, 1) {
+			contents += searchField
+			contents += saveAssays
+		}
+		layout(topGrid) = North
+		layout(assayList) = Center
+		layout(bottomGrid) = South
+	}
 	val top = new MainFrame {
 		title = "Cat Sight MS data visualizer"
 		preferredSize = new Dimension(1000, 700)
 		contents = new BorderPanel {
-			layout(gridPanel) = North
+			//layout(gridPanel) = North
 			layout(plotBuffer) = Center
+			layout(assayColumn) = East
 			/*layout(button) = West
 		      layout(canvas) = Center
 		      layout(toggle) = East

@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage
 
 import se.lth.immun.protocol.MSDataProtocol
 import se.lth.immun.protocol.MSDataProtocolActors
+import se.jt.{Util, PlotsControl}
 
 object SwingActor {
 	def props(params:CatSightParams) =
@@ -16,28 +17,39 @@ object SwingActor {
 
 class SwingActor(params:CatSightParams) extends Actor with Reactor {
 
+	import MSDataProtocolActors._
+	
 	val gui = new GUI(params)
-	listenTo(gui.loadAssay)
+	listenTo(gui.addAssays)
 	listenTo(gui.plotBuffer)
+	listenTo(gui.assayList.selection)
 	
 	val server = new InetSocketAddress("localhost", 12345)
 	val tracePlotter = context.actorOf(TracePlotter.props(self))
 	val client = context.actorOf(MSDataProtocolActors.ClientInitiator.props(server, self))
 	var msDataConnection:ActorRef = _
 	
+	
 	reactions += {
-		case ButtonClicked(c) =>
-			println("button clicked")
-			msDataConnection ! requestRandomAssay(3, 6)
-			
+		case e:ButtonClicked if e.source == gui.addAssays =>
+			val dialog = new AddAssaysDialog( assays => 
+				gui.assayList.listData = gui.assayList.listData ++ assays
+			)
+			dialog.open
+		
 		case e:UIElementResized if e.source == gui.plotBuffer =>
 			tracePlotter ! e.source.size
 			
-		case e:Event =>
-			println(e)
+		case sc:SelectionChanged if sc.source == gui.assayList =>
+			gui.assayList.selection.indices.headOption match {
+				case Some(index) =>
+					requestAssayIndex(index)
+				case None => {}
+			}
 	}
 	
-	import MSDataProtocolActors._
+	gui.plotBuffer.onNewZoom = f => tracePlotter ! TracePlotter.SetZoomFilter(f)
+	gui.plotBuffer.onZoomPop = n => tracePlotter ! TracePlotter.PopZoom(n)
 	
 	def receive = {
 		case s:String =>
@@ -45,42 +57,24 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 			
 		case MSDataProtocolConnected(remote, local) =>
 			msDataConnection = sender
-			msDataConnection ! requestRandomAssay(3, 6)
+			gui.assayList.selectIndices(0)
 			tracePlotter ! gui.plotBuffer.size
  
 		case MSDataReply(msg, nBytes, checkSum, timeTaken) =>
 			println("CatSight| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
 			tracePlotter ! msg
 			
-		case plot:BufferedImage =>
+		case Util.ImgControl(plot, ctrl) =>
 			gui.plotBuffer.setImg(plot)
+			gui.plotBuffer.setControl(ctrl)
 			
 	}
 	
-	
-	def requestRandomAssay(nPrec:Int, nFrag:Int) = {
-		import MSDataProtocol._
-		
-		val req = GetTracesFor.newBuilder
-		for (i <- 0 until nPrec) {
-			val (mz, diff) = randMzAndDiff
-			req.addPrecursor(Bounds.newBuilder.setLmz(mz-diff).setHmz(mz+diff))
+	var currIndex = -1
+	def requestAssayIndex(i:Int) = {
+		if (i != currIndex && i >= 0 && i < gui.assayList.listData.length) {
+			currIndex = i
+			msDataConnection ! gui.assayList.listData(i).toTraceMsg(params)
 		}
-		for (i <- 0 until nFrag) {
-			val (mz1, diff1) = randMzAndDiff
-			val (mz2, diff2) = randMzAndDiff
-			req.addFragment(
-				FragmentBounds.newBuilder
-					.setPrecursor(Bounds.newBuilder.setLmz(mz1-diff1).setHmz(mz1+diff1))
-					.setFragment(Bounds.newBuilder.setLmz(mz2-diff2).setHmz(mz2+diff2))
-				)
-		}
-		MasterRequest.newBuilder.setGetTracesFor(req).build
-	}
-	
-	def randMzAndDiff = {
-		val mz = 400.0 + scala.util.Random.nextDouble*800.0
-		val diff = mz * params.tracePPM / 1e6
-		(mz, diff)
 	} 
 }
