@@ -10,6 +10,8 @@ class PantherParams extends Params {
 	val lastSpectrumIndex = 0 			## "Last spectrum to use"
 	val mockBig = false					## "set to use big mock data instead of real"
 	val address = "localhost:12345" 	## "address to offert MSData service on. IP-ADDRESS:PORT"
+	val specQueueSize = 10				## "spectrum to parse in parallell"
 	
 	val mzML = ReqString("needed file ")
+	
 }

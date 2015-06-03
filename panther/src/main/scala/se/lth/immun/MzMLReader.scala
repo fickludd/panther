@@ -4,6 +4,12 @@ import se.lth.immun.xml.XmlReader
 import se.lth.immun.mzml._
 import se.lth.immun.mzml.ghost._
 
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.Duration
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import scala.collection.mutable.Queue
+
 object MzMLReader {
 	
 	val ISOLATION_WINDOW_ACC = "MS:1000827"
@@ -17,6 +23,7 @@ object MzMLReader {
 			(i:Int) => _,
 			(c:Chromatogram) => _
 		))
+		processQueue(ds, specQueue.length)
 	}
 	
 	
@@ -26,6 +33,7 @@ object MzMLReader {
 	}
 	
 	val t0 = System.currentTimeMillis
+	val specQueue = new Queue[Future[(GhostSpectrum, DataSpectrum)]]
 	def handleSpectrum(ds:DataStorer, params:PantherParams)(s:Spectrum):Unit = {
 		if (params.startSpectrumIndex < params.lastSpectrumIndex &&
 				(s.index < params.startSpectrumIndex || 
@@ -39,35 +47,49 @@ object MzMLReader {
 					Runtime.getRuntime().totalMemory() / 1000000, 
 					Runtime.getRuntime().maxMemory() / 1000000))
 		
-		val gs = GhostSpectrum.fromSpectrum(s)
-		val mzs = gs.mzs.toArray
-		val ints = gs.intensities.toArray
-		
-		val nNoZero = ints.count(_ > 0)
-		val intsWithout0 = new Array[Double](nNoZero)
-		val mzsWithout0 = new Array[Double](nNoZero)
-		var k = 0
-		for (j <- 0 until mzs.length)
-			if (ints(j) != 0) {
-				intsWithout0(k)=ints(j)
-				mzsWithout0(k)=mzs(j)
-				k+=1
+		specQueue += Future {
+				val gs = GhostSpectrum.fromSpectrum(s)
+				val mzs = gs.mzs.toArray
+				val ints = gs.intensities.toArray
+				
+				val nNoZero = ints.count(_ > 0)
+				val intsWithout0 = new Array[Double](nNoZero)
+				val mzsWithout0 = new Array[Double](nNoZero)
+				var k = 0
+				for (j <- 0 until mzs.length)
+					if (ints(j) != 0) {
+						intsWithout0(k)=ints(j)
+						mzsWithout0(k)=mzs(j)
+						k+=1
+					}
+				(gs, DataSpectrum(gs.scanStartTime, mzsWithout0, intsWithout0))
 			}
 		
-		val dataSpectrum = DataSpectrum(gs.scanStartTime, mzsWithout0, intsWithout0)
-		if (gs.msLevel == 1)
-			ds.addL1Spectrum(dataSpectrum)
-			
-		else if (gs.msLevel == 2) {
-			getLevel2Key(gs) match {
-				case Some(key) =>
-					ds.addL2Spectrum(key, dataSpectrum)
-				case None => {}
-			}
-			
-		} else
-			throw new Exception("unhandlable ms level "+gs.msLevel)
+		if (specQueue.length > params.specQueueSize)
+			processQueue(ds:DataStorer, specQueue.length - params.specQueueSize)
+
 	}
+	
+	
+	def processQueue(ds:DataStorer, n:Int) = {
+		for (i <- 0 until n) {
+			val fds = specQueue.dequeue
+			val (gs, dataSpectrum) = Await.result(fds, Duration.Inf)
+			if (gs.msLevel == 1)
+				ds.addL1Spectrum(dataSpectrum)
+				
+			else if (gs.msLevel == 2) {
+				getLevel2Key(gs) match {
+					case Some(key) =>
+						ds.addL2Spectrum(key, dataSpectrum)
+					case None => {}
+				}
+				
+			} else
+				throw new Exception("unhandlable ms level "+gs.msLevel)
+		}
+	}
+	
 	
 	def getLevel2Key(gs:GhostSpectrum):Option[Double] = {
 		val iwOpt = gs.spectrum.precursors.head.isolationWindow
