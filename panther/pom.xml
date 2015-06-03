@@ -58,7 +58,7 @@
     <dependency>
     	<groupId>se.lth.immun</groupId>
     	<artifactId>MSDataProtocolActors</artifactId>
-    	<version>0.0.1</version>
+    	<version>0.2.0</version>
     </dependency>
   </dependencies>
   

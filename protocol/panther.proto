@@ -26,6 +26,7 @@ message GetStatus {}
 message MasterRequest {
 	optional GetStatus getStatus = 1;
 	optional GetTracesFor getTracesFor = 2;
+	optional int32 id = 15;
 }
 
 
@@ -75,5 +76,6 @@ message ReplySize {
 message MasterReply {
 	optional Status status = 1;
 	optional Traces traces = 2;
+	optional int32 id = 15;
 	optional Error error = 99;
 }

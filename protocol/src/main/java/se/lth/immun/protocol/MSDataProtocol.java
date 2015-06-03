@@ -2558,6 +2558,15 @@ public final class MSDataProtocol {
      * <code>optional .se.lth.immun.protocol.GetTracesFor getTracesFor = 2;</code>
      */
     se.lth.immun.protocol.MSDataProtocol.GetTracesForOrBuilder getGetTracesForOrBuilder();
+
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    boolean hasId();
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    int getId();
   }
   /**
    * Protobuf type {@code se.lth.immun.protocol.MasterRequest}
@@ -2635,6 +2644,11 @@ public final class MSDataProtocol {
                 getTracesFor_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 120: {
+              bitField0_ |= 0x00000004;
+              id_ = input.readInt32();
               break;
             }
           }
@@ -2719,9 +2733,25 @@ public final class MSDataProtocol {
       return getTracesFor_;
     }
 
+    public static final int ID_FIELD_NUMBER = 15;
+    private int id_;
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    public boolean hasId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    public int getId() {
+      return id_;
+    }
+
     private void initFields() {
       getStatus_ = se.lth.immun.protocol.MSDataProtocol.GetStatus.getDefaultInstance();
       getTracesFor_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.getDefaultInstance();
+      id_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -2742,6 +2772,9 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, getTracesFor_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(15, id_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -2758,6 +2791,10 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, getTracesFor_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(15, id_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -2890,6 +2927,8 @@ public final class MSDataProtocol {
           getTracesForBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        id_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -2934,6 +2973,10 @@ public final class MSDataProtocol {
         } else {
           result.getTracesFor_ = getTracesForBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        result.id_ = id_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -2955,6 +2998,9 @@ public final class MSDataProtocol {
         }
         if (other.hasGetTracesFor()) {
           mergeGetTracesFor(other.getGetTracesFor());
+        }
+        if (other.hasId()) {
+          setId(other.getId());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -3213,6 +3259,38 @@ public final class MSDataProtocol {
           getTracesFor_ = null;
         }
         return getTracesForBuilder_;
+      }
+
+      private int id_ ;
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public int getId() {
+        return id_;
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public Builder setId(int value) {
+        bitField0_ |= 0x00000004;
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public Builder clearId() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        id_ = 0;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:se.lth.immun.protocol.MasterRequest)
@@ -8091,6 +8169,15 @@ public final class MSDataProtocol {
     se.lth.immun.protocol.MSDataProtocol.TracesOrBuilder getTracesOrBuilder();
 
     /**
+     * <code>optional int32 id = 15;</code>
+     */
+    boolean hasId();
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    int getId();
+
+    /**
      * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
      */
     boolean hasError();
@@ -8181,9 +8268,14 @@ public final class MSDataProtocol {
               bitField0_ |= 0x00000002;
               break;
             }
+            case 120: {
+              bitField0_ |= 0x00000004;
+              id_ = input.readInt32();
+              break;
+            }
             case 794: {
               se.lth.immun.protocol.MSDataProtocol.Error.Builder subBuilder = null;
-              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+              if (((bitField0_ & 0x00000008) == 0x00000008)) {
                 subBuilder = error_.toBuilder();
               }
               error_ = input.readMessage(se.lth.immun.protocol.MSDataProtocol.Error.PARSER, extensionRegistry);
@@ -8191,7 +8283,7 @@ public final class MSDataProtocol {
                 subBuilder.mergeFrom(error_);
                 error_ = subBuilder.buildPartial();
               }
-              bitField0_ |= 0x00000004;
+              bitField0_ |= 0x00000008;
               break;
             }
           }
@@ -8276,13 +8368,28 @@ public final class MSDataProtocol {
       return traces_;
     }
 
+    public static final int ID_FIELD_NUMBER = 15;
+    private int id_;
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    public boolean hasId() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional int32 id = 15;</code>
+     */
+    public int getId() {
+      return id_;
+    }
+
     public static final int ERROR_FIELD_NUMBER = 99;
     private se.lth.immun.protocol.MSDataProtocol.Error error_;
     /**
      * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
      */
     public boolean hasError() {
-      return ((bitField0_ & 0x00000004) == 0x00000004);
+      return ((bitField0_ & 0x00000008) == 0x00000008);
     }
     /**
      * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
@@ -8300,6 +8407,7 @@ public final class MSDataProtocol {
     private void initFields() {
       status_ = se.lth.immun.protocol.MSDataProtocol.Status.getDefaultInstance();
       traces_ = se.lth.immun.protocol.MSDataProtocol.Traces.getDefaultInstance();
+      id_ = 0;
       error_ = se.lth.immun.protocol.MSDataProtocol.Error.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
@@ -8334,6 +8442,9 @@ public final class MSDataProtocol {
         output.writeMessage(2, traces_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeInt32(15, id_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         output.writeMessage(99, error_);
       }
       getUnknownFields().writeTo(output);
@@ -8354,6 +8465,10 @@ public final class MSDataProtocol {
           .computeMessageSize(2, traces_);
       }
       if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt32Size(15, id_);
+      }
+      if (((bitField0_ & 0x00000008) == 0x00000008)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(99, error_);
       }
@@ -8489,12 +8604,14 @@ public final class MSDataProtocol {
           tracesBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        id_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000004);
         if (errorBuilder_ == null) {
           error_ = se.lth.immun.protocol.MSDataProtocol.Error.getDefaultInstance();
         } else {
           errorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
 
@@ -8542,6 +8659,10 @@ public final class MSDataProtocol {
         if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
           to_bitField0_ |= 0x00000004;
         }
+        result.id_ = id_;
+        if (((from_bitField0_ & 0x00000008) == 0x00000008)) {
+          to_bitField0_ |= 0x00000008;
+        }
         if (errorBuilder_ == null) {
           result.error_ = error_;
         } else {
@@ -8568,6 +8689,9 @@ public final class MSDataProtocol {
         }
         if (other.hasTraces()) {
           mergeTraces(other.getTraces());
+        }
+        if (other.hasId()) {
+          setId(other.getId());
         }
         if (other.hasError()) {
           mergeError(other.getError());
@@ -8843,6 +8967,38 @@ public final class MSDataProtocol {
         return tracesBuilder_;
       }
 
+      private int id_ ;
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public boolean hasId() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public int getId() {
+        return id_;
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public Builder setId(int value) {
+        bitField0_ |= 0x00000004;
+        id_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional int32 id = 15;</code>
+       */
+      public Builder clearId() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        id_ = 0;
+        onChanged();
+        return this;
+      }
+
       private se.lth.immun.protocol.MSDataProtocol.Error error_ = se.lth.immun.protocol.MSDataProtocol.Error.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
           se.lth.immun.protocol.MSDataProtocol.Error, se.lth.immun.protocol.MSDataProtocol.Error.Builder, se.lth.immun.protocol.MSDataProtocol.ErrorOrBuilder> errorBuilder_;
@@ -8850,7 +9006,7 @@ public final class MSDataProtocol {
        * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
        */
       public boolean hasError() {
-        return ((bitField0_ & 0x00000004) == 0x00000004);
+        return ((bitField0_ & 0x00000008) == 0x00000008);
       }
       /**
        * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
@@ -8875,7 +9031,7 @@ public final class MSDataProtocol {
         } else {
           errorBuilder_.setMessage(value);
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
@@ -8889,7 +9045,7 @@ public final class MSDataProtocol {
         } else {
           errorBuilder_.setMessage(builderForValue.build());
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
@@ -8897,7 +9053,7 @@ public final class MSDataProtocol {
        */
       public Builder mergeError(se.lth.immun.protocol.MSDataProtocol.Error value) {
         if (errorBuilder_ == null) {
-          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+          if (((bitField0_ & 0x00000008) == 0x00000008) &&
               error_ != se.lth.immun.protocol.MSDataProtocol.Error.getDefaultInstance()) {
             error_ =
               se.lth.immun.protocol.MSDataProtocol.Error.newBuilder(error_).mergeFrom(value).buildPartial();
@@ -8908,7 +9064,7 @@ public final class MSDataProtocol {
         } else {
           errorBuilder_.mergeFrom(value);
         }
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000008;
         return this;
       }
       /**
@@ -8921,14 +9077,14 @@ public final class MSDataProtocol {
         } else {
           errorBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000004);
+        bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
       /**
        * <code>optional .se.lth.immun.protocol.Error error = 99;</code>
        */
       public se.lth.immun.protocol.MSDataProtocol.Error.Builder getErrorBuilder() {
-        bitField0_ |= 0x00000004;
+        bitField0_ |= 0x00000008;
         onChanged();
         return getErrorFieldBuilder().getBuilder();
       }
@@ -9052,30 +9208,31 @@ public final class MSDataProtocol {
       "acesFor\0220\n\tprecursor\030\002 \003(\0132\035.se.lth.immu" +
       "n.protocol.Bounds\0227\n\010fragment\030\003 \003(\0132%.se" +
       ".lth.immun.protocol.FragmentBounds\"\013\n\tGe" +
-      "tStatus\"\177\n\rMasterRequest\0223\n\tgetStatus\030\001 " +
-      "\001(\0132 .se.lth.immun.protocol.GetStatus\0229\n",
-      "\014getTracesFor\030\002 \001(\0132#.se.lth.immun.proto" +
-      "col.GetTracesFor\"(\n\005Trace\022\014\n\004time\030\001 \003(\001\022" +
-      "\021\n\tintensity\030\002 \003(\001\"o\n\016PrecursorTrace\0220\n\t" +
-      "precursor\030\001 \001(\0132\035.se.lth.immun.protocol." +
-      "Bounds\022+\n\005trace\030\002 \001(\0132\034.se.lth.immun.pro" +
-      "tocol.Trace\"u\n\rFragmentTrace\0227\n\010fragment" +
-      "\030\001 \001(\0132%.se.lth.immun.protocol.FragmentB" +
-      "ounds\022+\n\005trace\030\002 \001(\0132\034.se.lth.immun.prot" +
-      "ocol.Trace\"z\n\006Traces\0228\n\tprecursor\030\001 \003(\0132" +
-      "%.se.lth.immun.protocol.PrecursorTrace\0226",
-      "\n\010fragment\030\002 \003(\0132$.se.lth.immun.protocol" +
-      ".FragmentTrace\"\243\001\n\006Status\0228\n\006status\030\001 \002(" +
-      "\0162(.se.lth.immun.protocol.Status.StatusT" +
-      "ype\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010progress\030\003 \001(\001" +
-      "\022\023\n\013progressMax\030\004 \001(\001\"%\n\nStatusType\022\017\n\013l" +
-      "oadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Error\022\014\n\004type\030\001 " +
-      "\002(\005\022\013\n\003msg\030\002 \002(\t\"\031\n\tReplySize\022\014\n\004size\030\001 " +
-      "\002(\007\"\230\001\n\013MasterReply\022-\n\006status\030\001 \001(\0132\035.se" +
-      ".lth.immun.protocol.Status\022-\n\006traces\030\002 \001" +
-      "(\0132\035.se.lth.immun.protocol.Traces\022+\n\005err",
-      "or\030c \001(\0132\034.se.lth.immun.protocol.ErrorB\'" +
-      "\n\025se.lth.immun.protocolB\016MSDataProtocol"
+      "tStatus\"\213\001\n\rMasterRequest\0223\n\tgetStatus\030\001" +
+      " \001(\0132 .se.lth.immun.protocol.GetStatus\0229",
+      "\n\014getTracesFor\030\002 \001(\0132#.se.lth.immun.prot" +
+      "ocol.GetTracesFor\022\n\n\002id\030\017 \001(\005\"(\n\005Trace\022\014" +
+      "\n\004time\030\001 \003(\001\022\021\n\tintensity\030\002 \003(\001\"o\n\016Precu" +
+      "rsorTrace\0220\n\tprecursor\030\001 \001(\0132\035.se.lth.im" +
+      "mun.protocol.Bounds\022+\n\005trace\030\002 \001(\0132\034.se." +
+      "lth.immun.protocol.Trace\"u\n\rFragmentTrac" +
+      "e\0227\n\010fragment\030\001 \001(\0132%.se.lth.immun.proto" +
+      "col.FragmentBounds\022+\n\005trace\030\002 \001(\0132\034.se.l" +
+      "th.immun.protocol.Trace\"z\n\006Traces\0228\n\tpre" +
+      "cursor\030\001 \003(\0132%.se.lth.immun.protocol.Pre",
+      "cursorTrace\0226\n\010fragment\030\002 \003(\0132$.se.lth.i" +
+      "mmun.protocol.FragmentTrace\"\243\001\n\006Status\0228" +
+      "\n\006status\030\001 \002(\0162(.se.lth.immun.protocol.S" +
+      "tatus.StatusType\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010p" +
+      "rogress\030\003 \001(\001\022\023\n\013progressMax\030\004 \001(\001\"%\n\nSt" +
+      "atusType\022\017\n\013loadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Err" +
+      "or\022\014\n\004type\030\001 \002(\005\022\013\n\003msg\030\002 \002(\t\"\031\n\tReplySi" +
+      "ze\022\014\n\004size\030\001 \002(\007\"\244\001\n\013MasterReply\022-\n\006stat" +
+      "us\030\001 \001(\0132\035.se.lth.immun.protocol.Status\022" +
+      "-\n\006traces\030\002 \001(\0132\035.se.lth.immun.protocol.",
+      "Traces\022\n\n\002id\030\017 \001(\005\022+\n\005error\030c \001(\0132\034.se.l" +
+      "th.immun.protocol.ErrorB\'\n\025se.lth.immun." +
+      "protocolB\016MSDataProtocol"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9118,7 +9275,7 @@ public final class MSDataProtocol {
     internal_static_se_lth_immun_protocol_MasterRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_MasterRequest_descriptor,
-        new java.lang.String[] { "GetStatus", "GetTracesFor", });
+        new java.lang.String[] { "GetStatus", "GetTracesFor", "Id", });
     internal_static_se_lth_immun_protocol_Trace_descriptor =
       getDescriptor().getMessageTypes().get(5);
     internal_static_se_lth_immun_protocol_Trace_fieldAccessorTable = new
@@ -9166,7 +9323,7 @@ public final class MSDataProtocol {
     internal_static_se_lth_immun_protocol_MasterReply_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_MasterReply_descriptor,
-        new java.lang.String[] { "Status", "Traces", "Error", });
+        new java.lang.String[] { "Status", "Traces", "Id", "Error", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
