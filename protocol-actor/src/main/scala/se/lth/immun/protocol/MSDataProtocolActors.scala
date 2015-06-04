@@ -10,10 +10,10 @@ import Tcp._
 object MSDataProtocolActors {
 	
 	trait MSDataProtocolMsg
-	case class MSDataProtocolError(msg:String) extends MSDataProtocolMsg
-	case class MSDataProtocolStatus(msg:String) extends MSDataProtocolMsg
-	case class MSDataReply(msg:MSDataProtocol.MasterReply, nBytes:Int, checkSum:Long, timeTaken:Long)
-	case class MSDataProtocolConnected(remote:InetSocketAddress, local:InetSocketAddress)
+	case class MSDataProtocolError(msg:String, address:InetSocketAddress) extends MSDataProtocolMsg
+	case class MSDataProtocolStatus(msg:String, address:InetSocketAddress) extends MSDataProtocolMsg
+	case class MSDataReply(msg:MSDataProtocol.MasterReply, nBytes:Int, checkSum:Long, timeTaken:Long, address:InetSocketAddress) extends MSDataProtocolMsg
+	case class MSDataProtocolConnected(remote:InetSocketAddress, local:InetSocketAddress) extends MSDataProtocolMsg
 	
 	object ClientInitiator {
 		def props(remote: InetSocketAddress, replies: ActorRef) =
@@ -28,7 +28,7 @@ object MSDataProtocolActors {
 
 		def receive = {
 			case CommandFailed(_: Connect) =>
-				customer ! MSDataProtocolError("connect failed")
+				customer ! MSDataProtocolError("connect failed", remote)
 				context stop self
 
 			case c @ Connected(remote, local) =>
@@ -49,11 +49,13 @@ object MSDataProtocolActors {
 		var sendTime:Long = 0
 		var repSize:Int = 0
 		var dataBuffer = ByteString()
+		var remote:InetSocketAddress = _
 		
 		import MSDataProtocol._
 		
 		def receive = {
 			case c @ Connected(remote, local) =>
+				this.remote = remote
 				customer ! MSDataProtocolConnected(remote, local)
 			
 			case req:MasterRequest =>
@@ -67,7 +69,7 @@ object MSDataProtocolActors {
 				sendTime = System.currentTimeMillis
 				
 			case CommandFailed(w: Write) => // O/S buffer was full
-				customer ! MSDataProtocolError("cmd failed")
+				customer ! MSDataProtocolError("cmd failed", remote)
 				
 			case Received(data) =>
 				if (repSize == 0) {
@@ -83,7 +85,8 @@ object MSDataProtocolActors {
 							msg, 
 							dataBuffer.length, 
 							dataBuffer.map(_.toLong).sum, 
-							System.currentTimeMillis - sendTime
+							System.currentTimeMillis - sendTime,
+							remote
 						)
 					repSize = 0
 				}
@@ -92,7 +95,7 @@ object MSDataProtocolActors {
 				connection ! Close
 			
 			case _: ConnectionClosed =>
-				customer ! MSDataProtocolStatus("connection closed")
+				customer ! MSDataProtocolStatus("connection closed", remote)
 				context stop self
 		}
 	}
@@ -119,14 +122,14 @@ object MSDataProtocolActors {
 	
 		def receive = {
 			case b @ Bound(localAddress) =>
-				logger ! MSDataProtocolStatus("bound to "+localAddress)
+				logger ! MSDataProtocolStatus("bound to "+localAddress, localAddress)
 	
 			case CommandFailed(_: Bind) => 
-				logger ! MSDataProtocolError("failed to bind to "+incoming)
+				logger ! MSDataProtocolError("failed to bind to "+incoming, incoming)
 				context stop self
 	
 			case c @ Connected(remote, local) =>
-				logger ! MSDataProtocolStatus("handling connection from "+remote)
+				logger ! MSDataProtocolStatus("handling connection from "+remote, remote)
 				sender() ! Register(reqHandler())
 		}
 	
