@@ -24,6 +24,7 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 			val req = MasterRequest.parseFrom(data.toArray)
 
 			val reply = MasterReply.newBuilder
+			reply.setId(req.getId)
 			if (req.hasGetStatus)
 				replyToGetStatus(reply)
 			if (req.hasGetTracesFor)
