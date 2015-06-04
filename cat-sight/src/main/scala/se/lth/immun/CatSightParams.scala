@@ -10,4 +10,7 @@ class CatSightParams extends Params {
 	val server = "localhost:12345" 	## "MSData server to connect to. IP-ADDRESS:PORT"
 	
 	val traML = ReqString("Assays to load")
+
+	val outSep = "\t"
+	val outQuote = "\""
 }

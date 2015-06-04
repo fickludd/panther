@@ -26,6 +26,12 @@ class AddAssaysDialog(
 		if (tramlChooser.selectedFile != null)
 			readTraml(tramlChooser.selectedFile)
 	}
+	val addTextFile = Button("csv/tsv") { 
+		val fileChooser = new FileChooser(new File("."))
+		fileChooser.showDialog(assayText, null)
+		if (fileChooser.selectedFile != null)
+			readTextFile(fileChooser.selectedFile)
+	}
 	val cancel = Button("cancel") { 
 		onClose(Nil)
 		close
@@ -60,8 +66,21 @@ class AddAssaysDialog(
 	}
 	
 	
+	def readTextFile(f:File) = {
+		val r = new BufferedReader(new FileReader(f))
+		val sb = new StringBuilder
+		var line = r.readLine()
+		while (line != null) {
+			sb ++= line
+			line = r.readLine()
+		}
+		r.close
+		assayText.text = sb.result
+		
+	}
+	
+	
 	def readTraml(f:File) = {
-		assayText.text = ""
 		val r = new XmlReader(new BufferedReader(new FileReader(f)))
 		val traml = GhostTraML.fromFile(r)
 		val sb = new StringBuilder

@@ -9,18 +9,24 @@ import se.lth.immun.protocol.MSDataProtocolActors
 import se.lth.immun.protocol.MSDataProtocol.Traces
 import se.lth.immun.protocol.MSDataProtocol.MasterReply
 
-import se.jt.{ Scale, Stratifier, LinePlot, Util }
+import se.jt.{ Scale, Stratifier, LinePlot, Util, PlotsControl }
+import java.awt.image.BufferedImage
+
+import CatSightPrimaries._
 
 object TracePlotter {
-	def props(swingActor:ActorRef) =
-		Props(classOf[TracePlotter], swingActor)
+	def props(swingActor:ActorRef, id:PlotID) =
+		Props(classOf[TracePlotter], swingActor, id)
 		
 	case class Datum(rt:Double, intensity:Double, id:String)
-	case class PopZoom(n:Int)
-	case class SetZoomFilter(f:(Datum, Int) => Boolean)
+	trait TracePlotterMsg
+	case class PopZoom(n:Int) extends TracePlotterMsg
+	case class SetZoomFilter(f:(Datum, Int) => Boolean) extends TracePlotterMsg
+	
+	case class PlotUpdate(id:PlotID, plot:BufferedImage, control:PlotsControl[Datum, Datum, Datum])
 }
 
-class TracePlotter(swingActor:ActorRef) extends Actor {
+class TracePlotter(swingActor:ActorRef, id:PlotID) extends Actor {
 
 	import TracePlotter._
 	import Scale._
@@ -35,8 +41,7 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 				println(reply.getStatus.getStatusMsg)
 			if (reply.hasTraces) {
 				plot = Some(getTracePlot(reply.getTraces))
-				swingActor ! Util.drawToBuffer(size.width, size.height, plot.get)
-			
+				swingActor ! plotUpdate(plot.get)
 			}
 			
 		case msg:MSDataProtocolActors.MSDataProtocolMsg =>
@@ -44,18 +49,16 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 			
 		case d:Dimension =>
 			size = d
-			plot.foreach(p =>
-					swingActor ! Util.drawToBuffer(size.width, size.height, p)
-				)
+			plot.foreach(p => swingActor ! plotUpdate(p))
 				
 		case PopZoom(n) =>
 			plot match {
-				case None => {}
 				case Some(p) if p.filters.nonEmpty =>
 					p.filters.pop
-					swingActor ! Util.drawToBuffer(size.width, size.height, p)
+					swingActor ! plotUpdate(p)
 						
 				case Some(_) => {}
+				case None => {}
 			}
 			
 			
@@ -64,32 +67,32 @@ class TracePlotter(swingActor:ActorRef) extends Actor {
 				case None => {}
 				case Some(p) =>
 					p.filters.push(f)
-					swingActor ! Util.drawToBuffer(size.width, size.height, p)
-						
+					swingActor ! plotUpdate(p)
 			}
 	}
 	
 	
+	def plotUpdate(p:LinePlot[Datum]) = {
+		val imgCtrl = Util.drawToBuffer(size.width, size.height, p)
+		PlotUpdate(id, imgCtrl.img, imgCtrl.control)
+	}
+	
+	
+	
 	def getTracePlot(t:Traces) = {
 		val data = new ArrayBuffer[Datum]
-		println("Precursors:")
 		for (pTrace <- t.getPrecursorList) {
 			val id = "prec %.4f".format(pTrace.getPrecursor.getLmz)
 			val trace = pTrace.getTrace.getTimeList.zip(pTrace.getTrace.getIntensityList)
-			println(id + " \t" + trace.take(10).mkString)
 			data ++= trace.map(t => Datum(t._1, t._2, id))
 		}
-		println("Fragments:")
 		for (fTrace <- t.getFragmentList) {
 			val id = "frag %.4f -> %.4f".format(fTrace.getFragment.getPrecursor.getLmz, fTrace.getFragment.getFragment.getLmz)
 			val trace = fTrace.getTrace.getTimeList.zip(fTrace.getTrace.getIntensityList)
-			println(id + " \t" + trace.take(10).mkString)
 			data ++= trace.map(t => Datum(t._1, t._2, id))
 		}
-		println("trying to plot %d data points".format(data.length))
 		new LinePlot(data)
 				.x(_.rt)
-				//.y(_.intensity)(log10Scale, doubleStratifier)
 				.y(_.intensity)
 				.color(_.id)
 	}

@@ -34,7 +34,7 @@ class Assay(
 	
 	override def toString = id
 	
-	def toTraceMsg(implicit params:CatSightParams) = {
+	def toTraceMsg(id:Int, params:CatSightParams) = {
 		import MSDataProtocol._
 		
 		val req = GetTracesFor.newBuilder
@@ -51,6 +51,8 @@ class Assay(
 					.setFragment(Bounds.newBuilder.setLmz(fmz-fDiff).setHmz(fmz+fDiff))
 				)
 		}
-		MasterRequest.newBuilder.setGetTracesFor(req).build
+		val mreq = MasterRequest.newBuilder.setGetTracesFor(req)
+		mreq.setId(id)
+		mreq.build
 	}
 }

@@ -8,11 +8,13 @@ import java.awt.image.BufferedImage
 import se.jt.PlotsControl
 import se.jt.PlotControl
 
+import CatSightPrimaries._
+
 object PlotBuffer {
 	case class Marker[D, X, Y](ctrl:PlotControl[D, X, Y], px:Int, py:Int)
 }
 
-class PlotBuffer extends Component {
+class PlotBuffer(val id:PlotID) extends Component {
 
 	import TracePlotter._
 	import PlotBuffer._
@@ -31,10 +33,16 @@ class PlotBuffer extends Component {
 		repaint
 	}
 	
-	def setControl(ctrl:PlotsControl[Any, Any, Any]) = {
-		_control = Some(ctrl.asInstanceOf[PlotsControl[Datum, Datum, Datum]])
+	def setControl(ctrl:PlotsControl[Datum, Datum, Datum]) = {
+		_control = Some(ctrl)
 		m1 = None
 		m2 = None
+		repaint
+	}
+	
+	def clear = {
+		_img = None
+		_control = None
 		repaint
 	}
 	
@@ -48,7 +56,9 @@ class PlotBuffer extends Component {
 						m1 = Some(Marker(ctrl, mm.point.x, mm.point.y))
 						repaint
 						
-					case None => {}
+					case None => 
+						m1 = None
+						repaint
 				}
 			}
 			
@@ -93,7 +103,11 @@ class PlotBuffer extends Component {
 				plotMarker(m1)
 				plotMarker(m2)
 				
-			case None => {}
+			case None => 
+				g.setColor(Color.BLACK)
+				g.drawRect(1, 1, size.width - 2, size.height - 2)
+				g.drawLine(1, 1, size.width - 2, size.height - 2)
+				g.drawLine(1, size.height - 2, size.width - 2, 1)
 		}
 	}
 }
