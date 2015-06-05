@@ -2,7 +2,10 @@ package se.lth.immun
 
 import java.io.File
 import java.io.FileReader
+import java.io.FileInputStream
 import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.util.zip.GZIPInputStream
 import java.util.Properties
 import java.net.InetSocketAddress
 
@@ -32,13 +35,16 @@ object Panther extends CLIApp {
 		
 		failOnError(parseArgs(name, version, args, params, List("mzML"), None))
 		
-		
 		val system = ActorSystem()
-		val localAddress = new InetSocketAddress("localhost", 12345)
+		
+		val address = params.parseAddress
+		
+		println("  %s %s".format(name, version))
+		println("binding to "+address)
 		
 		val logger = system.actorOf(Props[Logger])
 		val server = system.actorOf(MSDataProtocolActors.Server.props(
-				localAddress, 
+				address, 
 				logger, 
 				() => system.actorOf(RequestHandler.props(ds))
 			), name = "server")
@@ -49,12 +55,24 @@ object Panther extends CLIApp {
 		if (params.mockBig)
 			Mock.big(ds)
 		else
-			MzMLReader.parseMzML(r, ds, params)
+			MzMLReader.parseMzML(getReader(params.mzML), ds, params)
 			
 		println("READY!")
 		
 		system.awaitTermination
 		println("done")
+	}
+	
+	
+	def getReader(path:String):XmlReader = {
+		val f = new File(path)
+		if (path.toLowerCase.endsWith(".mzml.gz"))
+			new XmlReader(new BufferedReader(new InputStreamReader(
+							new GZIPInputStream(new FileInputStream(f)))))
+		else if (path.toLowerCase.endsWith(".mzml"))
+			new XmlReader(new BufferedReader(new FileReader(f)))
+		else
+			throw new Exception("Unknown file format '%s'".format(path))
 	}
 	
 }
