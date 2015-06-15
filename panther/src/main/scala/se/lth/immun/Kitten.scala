@@ -31,7 +31,7 @@ object Kitten {
 			case MSDataProtocolConnected(remote, local) =>
 				sender ! reqRandAssay(3, 6)
  
-			case MSDataReply(msg, nBytes, checkSum, timeTaken) =>
+			case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
 				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
 				sender ! reqRandAssay(3, 6)
 		}

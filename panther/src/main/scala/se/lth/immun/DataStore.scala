@@ -1,42 +1,113 @@
 package se.lth.immun
 
-case class DataSpectrum(time:Double, mz:Seq[Double], intensity:Seq[Double]) {
-	def sum(lowMz:Double, highMz:Double):Double = {
-		val i0 = mz.indexWhere(_ > lowMz) // first index where predicate hold
-		val in = mz.indexWhere(_ > highMz, i0) // same, starting from i0 
-		intensity.slice(i0, in).sum // slice: subsequence by indices.
-	}
-}
-case class DataTrace(time:Seq[Double], intensity:Seq[Double])
+case class DataSpectrum(time: Double, mz: Seq[Double], intensity: Seq[Double]) {
 
+  def sum(lowMz: Double, highMz: Double): Double = {
+
+    bigStepMethod(lowMz, highMz)
+  }
+
+  
+  def bigStepMethod(lowMz: Double, highMz: Double): Double = {
+    val i0 = calcStepIndex(lowMz, 0)
+    var in = 0
+    if (highMz > mz(mz.size - 1)) {
+      in = mz.size
+    } else {
+      in = calcStepIndex(highMz, i0)
+    }
+    var sum = 0.0
+    if (lowMz > mz(i0)) {
+      return 0
+    }
+
+    for (i <- i0 until in) {
+      sum += intensity(i)
+    }
+
+    return sum
+
+  }
+  def calcStepIndex(border: Double, index: Int): Int = {
+
+    var iterations = 0
+    var i = index
+    while (true) {
+      iterations += 1
+      if (i > mz.size - 1) {
+        i = mz.size - 1
+      }
+
+      if (mz(i) > border) {
+        while (true) {
+
+          iterations += 1
+          i -= 100
+          if (i < 0) {
+            i = 0
+          }
+          if (mz(i) < border) {
+            while (true) {
+
+              iterations += 1
+              i += 10
+              if (i > mz.size - 1) {
+                i = mz.size - 1
+              }
+              if (mz(i) > border) {
+                while (true) {
+                  i -= 1
+                  if (mz(i) < border) {
+                    return i + 1
+
+                  }
+                }
+              }
+            }
+          } else if (i == 0) {
+            return 0
+          }
+
+        }
+      } else if (i == mz.size - 1) {
+        return i
+      } else {
+        i += 1000
+
+      }
+    }
+
+    return 0
+  }
+
+}
+
+case class DataTrace(time: Seq[Double], intensity: Seq[Double])
 
 object DataStore {
-	trait Status
-	case object UnInitialized extends Status
-	case object Ready extends Status
-	case class Loading(loaded:Int, total:Int) extends Status
+  trait Status
+  case object UnInitialized extends Status
+  case object Ready extends Status
+  case class Loading(loaded: Int, total: Int) extends Status
 }
 
-
 trait DataStore {
-	def extractL1Trace(
-			lowMz:Double, 
-			highMz:Double
-		):DataTrace
-	
-	def extractL2Trace(
-			precLowMz:Double, 
-			precHighMz:Double, 
-			fragLowMz:Double, 
-			fragHighMz:Double
-		):DataTrace
-		
-	def status:DataStore.Status
+  def extractL1Trace(
+    lowMz: Double,
+    highMz: Double): DataTrace
+
+  def extractL2Trace(
+    precLowMz: Double,
+    precHighMz: Double,
+    fragLowMz: Double,
+    fragHighMz: Double): DataTrace
+
+  def status: DataStore.Status
 }
 
 trait DataStorer {
-	def setNumSpectra(n:Int):Unit
-	def addL1Spectrum(ds:DataSpectrum):Unit
-	def addL2Spectrum(key:Double, ds:DataSpectrum):Unit
+  def setNumSpectra(n: Int): Unit
+  def addL1Spectrum(ds: DataSpectrum): Unit
+  def addL2Spectrum(key: Double, ds: DataSpectrum): Unit
 }
 
