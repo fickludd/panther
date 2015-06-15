@@ -22,7 +22,16 @@ class AddSourceDialog(
 		close
 	}
 	
-	val ok = Button("ok") {
+	val ok = Button("ok") { tryParseDone }
+	
+	listenTo(nameField)
+	reactions += {
+		case e:EditDone if e.source == nameField =>
+			tryParseDone
+	}
+	
+	
+	def tryParseDone = 
 		parseSource match {
 			case Success(source) =>
 				onClose(Some(source))
@@ -30,7 +39,6 @@ class AddSourceDialog(
 			case Failure(e) =>
 				sourceStatus.text = e.getMessage
 		}
-	}
 	
 	
 	def parseSource:Try[SourceDef] = {

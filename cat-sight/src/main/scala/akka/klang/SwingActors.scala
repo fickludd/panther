@@ -1,4 +1,4 @@
-// ©2012 Viktor Klang
+// (c) 2012 Viktor Klang
 package akka.klang
 
 import akka.dispatch.{ DispatcherPrerequisites, ExecutorServiceFactory, ExecutorServiceConfigurator }

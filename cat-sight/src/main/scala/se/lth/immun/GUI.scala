@@ -68,6 +68,7 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 		preferredSize = new Dimension(1000, 700)
 		val traceControl = new GridPanel(1,2) {
 			contents += syncZoom
+			contents += hideLegends
 			contents += addSource
 		}
 		val traceDisplay = new BorderPanel {
@@ -114,10 +115,11 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 		plots.revalidate
 	}
 	
-	def setSources(sources:Seq[Source]) = {
-		sourceLegend.columns = sources.length
+	def setSources(sources:HashMap[InetSocketAddress, Source]) = {
+		sourceLegend.columns = sources.size
 		sourceLegend.contents.clear
-		sourceLegend.contents ++= sources.map(s => new SourceLabel(s.name))
+		sourceLegend.contents ++= 
+			sources.toSeq.sortBy(_._1.toString).map(t => new SourceLabel(t._2.name))
 		sourceLegend.revalidate
 	}
 }

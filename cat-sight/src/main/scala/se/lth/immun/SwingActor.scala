@@ -34,6 +34,7 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 	listenTo(gui.plots)
 	listenTo(gui.saveAssays)
 	listenTo(gui.syncZoom)
+	listenTo(gui.hideLegends)
 	listenTo(gui.addSource)
 	listenTo(gui.assayList.selection)
 	
@@ -52,7 +53,7 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 		val address = new InetSocketAddress(s.ip, s.port)
 		val connection = context.actorOf(MSDataProtocolActors.ClientInitiator.props(address, self))
 		sources += address -> new Source(s.name, connection)
-		gui.setSources(sources.values.toSeq)
+		gui.setSources(sources)
 	}
 	
 	def updateAssayList = {
@@ -93,8 +94,12 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 			
 		case e:ButtonClicked if e.source == gui.syncZoom =>
 			zoomBehaviour = 
-				if (gui.syncZoom.enabled) zoomAll
+				if (gui.syncZoom.selected) zoomAll
 				else zoomSelf
+			
+		case e:ButtonClicked if e.source == gui.hideLegends =>
+			for ((id, aTrace) <- assayTraces)
+				aTrace.plotter ! (if (gui.hideLegends.selected) HideLegend else ShowLegend)
 				
 		case e:ButtonClicked if e.source == gui.addSource =>
 			val dialog = new AddSourceDialog( newSourceOpt => 
@@ -159,7 +164,7 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 		
 		for (at <- stillIn.map(assayTraces)) at.plotBuffer.clear
 		for (id <- toAdd) {
-			val tp = context.actorOf(TracePlotter.props(self, id))
+			val tp = context.actorOf(TracePlotter.props(self, id, gui.hideLegends.selected))
 			val buff = new PlotBuffer(id)
 			sources(id.source).connection match {
 				case Some(conn) =>
