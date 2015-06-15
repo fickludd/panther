@@ -1,5 +1,4 @@
 package se.lth.immun
-import scala.util.control.Breaks._
 
 case class DataSpectrum(time: Double, mz: Seq[Double], intensity: Seq[Double]) {
 
