@@ -23,6 +23,10 @@ message GetTracesFor {
 
 message GetStatus {}
 
+message RequestSize {
+	required fixed32 size = 1;
+}
+
 message MasterRequest {
 	optional GetStatus getStatus = 1;
 	optional GetTracesFor getTracesFor = 2;
