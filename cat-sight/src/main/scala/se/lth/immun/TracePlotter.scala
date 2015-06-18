@@ -38,11 +38,11 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 	var plot:Option[LinePlot[Datum]] = None
 	
 	def receive = {
-		case reply:MasterReply =>
+		case (reply:MasterReply, assay:Assay) =>
 			if (reply.hasStatus)
 				println(reply.getStatus.getStatusMsg)
 			if (reply.hasTraces) {
-				plot = Some(getTracePlot(reply.getTraces))
+				plot = Some(getTracePlot(reply.getTraces, assay))
 				swingActor ! plotUpdate(plot.get)
 			}
 			
@@ -96,17 +96,32 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 	
 	
 	
-	def getTracePlot(t:Traces) = {
+	def getTracePlot(t:Traces, assay:Assay) = {
 		val data = new ArrayBuffer[Datum]
-		for (pTrace <- t.getPrecursorList) {
-			val id = "prec %.4f".format(pTrace.getPrecursor.getLmz)
-			val trace = pTrace.getTrace.getTimeList.zip(pTrace.getTrace.getIntensityList)
-			data ++= trace.map(t => Datum(t._1, t._2, id))
+		for (prec <- assay.precs) {
+			t.getPrecursorList.find(t => 
+				prec.mz > t.getPrecursor.getLmz && 
+				prec.mz < t.getPrecursor.getHmz
+			) match {
+				case None => println("TracePlotter: cannot match trace with assay!")
+				case Some(pTrace) =>
+					val trace = pTrace.getTrace.getTimeList.zip(pTrace.getTrace.getIntensityList)
+					data ++= trace.map(t => Datum(t._1, t._2, prec.id))
+			}
 		}
-		for (fTrace <- t.getFragmentList) {
-			val id = "frag %.4f -> %.4f".format(fTrace.getFragment.getPrecursor.getLmz, fTrace.getFragment.getFragment.getLmz)
-			val trace = fTrace.getTrace.getTimeList.zip(fTrace.getTrace.getIntensityList)
-			data ++= trace.map(t => Datum(t._1, t._2, id))
+		
+		for (frag <- assay.frags) {
+			t.getFragmentList.find(t =>
+				frag.precMz > t.getFragment.getPrecursor.getLmz &&
+				frag.precMz < t.getFragment.getPrecursor.getHmz &&
+				frag.fragMz > t.getFragment.getFragment.getLmz &&
+				frag.fragMz < t.getFragment.getFragment.getHmz
+			) match {
+				case None => println("TracePlotter: cannot match trace with assay!")
+				case Some(fTrace) =>
+					val trace = fTrace.getTrace.getTimeList.zip(fTrace.getTrace.getIntensityList)
+					data ++= trace.map(t => Datum(t._1, t._2, frag.id))
+			}
 		}
 		val p = new LinePlot(data)
 				.x(_.rt)

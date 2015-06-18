@@ -126,7 +126,7 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 			val id = PlotID(msg.getId, remote)
 			assayTraces.get(id) match {
 				case Some(at) =>
-					at.plotter ! msg
+					at.plotter ! (msg, gui.assayList.listData(id.assayId))
 				case None => println("SWINGACTOR: got msg for non-existant plotter "+id)
 			}
 			
