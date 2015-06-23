@@ -43,13 +43,11 @@ object Panther extends CLIApp {
 		println("binding to "+address)
 		
 		val logger = system.actorOf(Props[Logger])
-		val server = system.actorOf(MSDataProtocolActors.Server.props(
+		val server = system.actorOf(MSDataProtocolActors.ServerInitiator.props(
 				address, 
 				logger, 
 				() => system.actorOf(RequestHandler.props(ds))
 			), name = "server")
-		
-		val r = new XmlReader(new BufferedReader(new FileReader(new File(params.mzML))))
 		
 		
 		if (params.mockBig)

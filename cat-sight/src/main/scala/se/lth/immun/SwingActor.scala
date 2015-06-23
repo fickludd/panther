@@ -84,11 +84,11 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 			savePathChooser.showDialog(gui.plots, null)
 			if (savePathChooser.selectedFile != null)
 				writeAssays(savePathChooser.selectedFile)
-		
+		/*
 		case e:UIElementResized if e.source == gui.plots =>
 			for (AssayTrace(tp, buff) <- assayTraces.values)
 				tp ! buff.size
-			
+			*/
 		case sc:SelectionChanged if sc.source == gui.assayList =>
 			requestAssayIndices(gui.assayList.selection.indices.toSet)
 			
@@ -119,15 +119,15 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 				case None =>
 					println("SWINGACTOR: got unknown connection msg to "+remote)
 			}
-			//msDataConnection = sender
 		
 		case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
 			println("CatSight| parsed %d bytes in %5d ms. CHECKSUM=%12d".format(nBytes, timeTaken, checkSum))
-			val id = PlotID(msg.getId, remote)
-			assayTraces.get(id) match {
-				case Some(at) =>
-					at.plotter ! (msg, gui.assayList.listData(id.assayId))
-				case None => println("SWINGACTOR: got msg for non-existant plotter "+id)
+			//val id = PlotID(msg.getId, remote)
+			sources(remote).onCompleted(msg.getId)
+			assayTraces.find(_._1.intID == msg.getId) match {
+				case Some((id, at)) =>
+					at.plotter ! msg -> assays.find(_.id == id.assayId).get
+				case None => println("SWINGACTOR: got msg for non-existant plotID "+msg.getId)
 			}
 			
 		case TracePlotter.PlotUpdate(id, plot, ctrl) =>
@@ -146,39 +146,44 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 	var zoomBehaviour:(ActorRef, TracePlotterMsg) => Unit = zoomSelf
 		
 	def updateZoomBehaviour = 
-		for (AssayTrace(tp, buff) <- assayTraces.values) {
+		for (AssayTrace(tp, buff, listener) <- assayTraces.values) {
 			buff.onNewZoom = f => zoomBehaviour(tp, SetZoomFilter(f))
 			buff.onZoomPop = n => zoomBehaviour(tp, PopZoom(n))	
 		}
 	
 	
+	var lastSelectedAssayIds:Set[Int] = Set()
 	def requestAssayIndices(assayIds:Set[Int]) = {
-		val reqSet = assayIds.flatMap(aid => sources.keys.map(addr => PlotID(aid, addr)))
-		val currSet = assayTraces.keys.toSet
-		val toRemove = currSet -- reqSet
-		val stillIn = currSet & reqSet
-		val toAdd = reqSet -- currSet
-		for (id <- toRemove)
-			context.stop(assayTraces(id).plotter)
-		assayTraces --= toRemove
-		
-		for (at <- stillIn.map(assayTraces)) at.plotBuffer.clear
-		for (id <- toAdd) {
-			val tp = context.actorOf(TracePlotter.props(self, id, gui.hideLegends.selected))
-			val buff = new PlotBuffer(id)
-			sources(id.source).connection match {
-				case Some(conn) =>
-					conn ! gui.assayList.listData(id.assayId).toTraceMsg(id.assayId, params)
-				case None =>
-					println("SWINGACTOR: connection not established for "+id.source)
+		if (assayIds != lastSelectedAssayIds) {
+			lastSelectedAssayIds = assayIds
+			val reqSet = assayIds.flatMap(aid => 
+					sources.keys.map(addr => PlotID(gui.assayList.listData(aid).id, addr))
+				)
+			val currSet = assayTraces.keys.toSet
+			val toRemove = currSet -- reqSet
+			val stillIn = currSet & reqSet
+			val toAdd = reqSet -- currSet
+			for (id <- toRemove) {
+				val at = assayTraces(id)
+				context.stop(at.plotter)
+				at.listener.deafTo(at.plotBuffer)
 			}
-			assayTraces += id -> AssayTrace(tp, buff)
+			assayTraces --= toRemove
+			
+			for (at <- stillIn.map(assayTraces)) at.plotBuffer.clear
+			for (id <- toAdd) {
+				val tp = context.actorOf(TracePlotter.props(self, id, gui.hideLegends.selected))
+				val buff = new PlotBuffer(id)
+				val listener = new PlotBuffer.Listener(buff, size => tp ! size)
+				assayTraces += id -> AssayTrace(tp, buff, listener)
+				sources(id.source).query(assays.find(_.id == id.assayId).get.toTraceMsg(id.intID, params))
+			}
+			
+			updateZoomBehaviour
+			gui.setPlots(assayTraces)
+			for (at <- assayTraces.values)
+				at.plotter ! at.plotBuffer.size
 		}
-		
-		updateZoomBehaviour
-		gui.setPlots(assayTraces)
-		for (at <- assayTraces.values)
-			at.plotter ! at.plotBuffer.size
 	}
 	
 	def writeAssays(f:File) = {

@@ -5,6 +5,7 @@ import akka.io.Tcp
 import akka.util.ByteString
 
 import se.lth.immun.protocol.MSDataProtocol
+import se.lth.immun.protocol.MSDataProtocolActors._
 
 import scala.collection.JavaConversions._
 
@@ -17,12 +18,7 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 	import MSDataProtocol._
 	import Tcp._
 	def receive = {
-		case Received(data) =>
-			//sender() ! Write(data)
-			//println("HANDLER: received command ")
-
-			val req = MasterRequest.parseFrom(data.toArray)
-
+		case MSDataRequest(req, nBytes, checkSum, remote) =>
 			val reply = MasterReply.newBuilder
 			reply.setId(req.getId)
 			if (req.hasGetStatus)
@@ -30,12 +26,7 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 			if (req.hasGetTracesFor)
 				replyToGetTracesFor(reply, req.getGetTracesFor)
 			
-			val repBytes = reply.build.toByteArray
-			val sizeMsg = ReplySize.newBuilder.setSize(repBytes.length)
-			val headBytes = sizeMsg.build.toByteArray
-			println("SERVER: writing %d -> %d bytes: %d".format(headBytes.length, repBytes.length, repBytes.map(_.toLong).sum))
-			sender ! Write(ByteString() ++ headBytes ++ repBytes)
-			//compountWrite(bytes)
+			sender ! reply.build
 		
 
 		case PeerClosed =>
@@ -43,7 +34,7 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 			context stop self
 
 		case x =>
-			println(x)
+			println("REQ_HANDLER: "+x)
 	}
 	
 	

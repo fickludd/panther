@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>se.lth.immun</groupId>
   <artifactId>MSDataProtocolActors</artifactId>
-  <version>0.2.1</version>
+  <version>0.3.0</version>
   <inceptionYear>2015</inceptionYear>
   <properties>
     <scala.version>2.10.0</scala.version>
@@ -28,7 +28,7 @@
     <dependency>
     	<groupId>se.lth.immun</groupId>
     	<artifactId>MSDataProtocol</artifactId>
-    	<version>0.2.0</version>
+    	<version>0.3.0</version>
     </dependency>
   </dependencies>
   

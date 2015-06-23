@@ -12,6 +12,13 @@ import CatSightPrimaries._
 
 object PlotBuffer {
 	case class Marker[D, X, Y](ctrl:PlotControl[D, X, Y], px:Int, py:Int)
+	
+	class Listener(pb:PlotBuffer, f:Dimension => Unit) extends Reactor {
+		listenTo(pb)
+		reactions += {
+			case e:UIElementResized => f(pb.size)
+		}
+	}
 }
 
 class PlotBuffer(val id:PlotID) extends Component {

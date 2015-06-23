@@ -97,8 +97,8 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 		val sources = traces.keys.map(_.source).toSeq.sortBy(_.toString).distinct
 		val assayIds = traces.keys.map(_.assayId).toSeq.sorted.distinct
 		
-		plots.columns = sources.length
-		plots.rows = assayIds.length
+		plots.columns = math.max(1, sources.length)
+		plots.rows = math.max(1, assayIds.length)
 		plots.contents.clear
 		
 		for {

@@ -2,13 +2,12 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>se.lth.immun</groupId>
   <artifactId>Panther</artifactId>
-  <version>0.0.1</version>
+  <version>0.1.0</version>
   <inceptionYear>2015</inceptionYear>
   <properties>
     <scala.version>2.10.0</scala.version>
-    <short.name>panther</short.name>
     <mainClass>se.lth.immun.Panther</mainClass>
-    <selfContained.jar>${basedir}/target/${build.finalName}.free.jar</selfContained.jar>
+    <!--project.build.sourceEncoding>UTF-8</project.build.sourceEncoding-->
   </properties>
   
   <dependencies>
@@ -58,7 +57,7 @@
     <dependency>
     	<groupId>se.lth.immun</groupId>
     	<artifactId>MSDataProtocolActors</artifactId>
-    	<version>0.2.1</version>
+    	<version>0.3.0</version>
     </dependency>
   </dependencies>
   
@@ -144,6 +143,8 @@
       <plugin>
 	    <artifactId>maven-assembly-plugin</artifactId>
 	    <configuration>
+              <finalName>${artifactId}-${version}</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
 	      <descriptorRefs>
 	        <descriptorRef>jar-with-dependencies</descriptorRef>
 	      </descriptorRefs>

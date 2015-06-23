@@ -14,7 +14,8 @@ object Kitten {
 	
 	def main(args: Array[String]) = {
 		val system = ActorSystem()
-		val server = new InetSocketAddress("localhost", 12345)
+		//val server = new InetSocketAddress("localhost", 12345)
+		val server = new InetSocketAddress("130.235.249.157", 12346)
 		val infinitePoller = system.actorOf(Props[InfinitePoller])
 		val client = system.actorOf(MSDataProtocolActors.ClientInitiator.props(server, infinitePoller))
 		system.awaitTermination
@@ -29,11 +30,11 @@ object Kitten {
 				println(msg)
 
 			case MSDataProtocolConnected(remote, local) =>
-				sender ! reqRandAssay(3, 6)
+				sender ! reqRandAssay(2+Random.nextInt(5), 5+Random.nextInt(30))
  
 			case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
 				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
-				sender ! reqRandAssay(3, 6)
+				sender ! reqRandAssay(2+Random.nextInt(5), 5+Random.nextInt(30))
 		}
 		
 		

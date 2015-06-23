@@ -34,7 +34,9 @@ class AddAssaysDialog(
 			readTextFile(fileChooser.selectedFile)
 	}
 	val splitPrecAndFrag = new CheckBox { text = "split prec/frag" }
+	val fragFilterRE = new TextField
 	val fragSubGroupRE = new TextField
+	val precSubGroupRE = new TextField
 	val cancel = Button("cancel") { 
 		onClose(Nil)
 		close
@@ -54,10 +56,16 @@ class AddAssaysDialog(
 	
 	
 	contents = new BorderPanel {
-		val bottomGrid = new GridPanel(3, 1) {
+		val bottomGrid = new GridPanel(4, 1) {
 			contents += errorFeedback
 			contents += new GridPanel(1,3) {
 				contents += splitPrecAndFrag
+				contents += new Label { text = "prec subgroup regex" }
+				contents += precSubGroupRE
+			}
+			contents += new GridPanel(1,4) {
+				contents += new Label { text = "frag filter regex" }
+				contents += fragFilterRE
 				contents += new Label { text = "frag subgroup regex" }
 				contents += fragSubGroupRE
 			}
@@ -157,6 +165,21 @@ class AddAssaysDialog(
 				if (splitPrecAndFrag.selected && iFRAG_MZ >= 0) 
 						"MS"+msLevel
 				else ""
+			val precLabel = 
+				if (msLevel == 1) 
+					precSubGroupRE.text match {
+						case null 	=> ""
+						case "" 	=> ""
+						case reStr 	=>
+							val r = reStr.r.unanchored
+							traceID match {
+								case r(label) => label
+								case _ => 
+									errorFeedback.text = "couldn't match traceID '%s' to regex '%s'".format(traceID, reStr)
+									""
+							}
+					}
+				else ""
 			val fragLabel = 
 				if (msLevel == 2) 
 					fragSubGroupRE.text match {
@@ -172,8 +195,22 @@ class AddAssaysDialog(
 							}
 					}
 				else ""
-			(levelLabel + " " + fragLabel).trim
+			(levelLabel + " " + precLabel + " " + fragLabel).trim
 		}
+		
+		def includeTrace(traceID:String, msLevel:Int) = 
+			if (msLevel == 2) 
+				fragFilterRE.text match {
+					case null 	=> true
+					case "" 	=> true
+					case reStr 	=>
+						val r = reStr.r.unanchored
+						r.findFirstIn(traceID) match {
+							case Some(str) 	=> false
+							case _ 			=> true
+						}
+				}
+			else true
 			
 		import Assay._
 		val assays = new HashMap[String, AssayBuilder]
@@ -184,29 +221,32 @@ class AddAssaysDialog(
 					case None => 1
 					case Some(x) => 2
 				}
-			val id = 
-				if (iASSAY_ID >= 0) parts(iASSAY_ID) 
-				else 
-					get(iPEPTIDE, parts).getOrElse(get(iCOMPOUND, parts))+
-						"+".padTo(parts(iZ).toInt, '+') +
-					getTraceLabel(parts(iTRACE_ID), msLevel)
+			if (includeTrace(parts(iTRACE_ID), msLevel)) {
 				
-			val tid = without(
-						parts(iTRACE_ID), 
-						get(iASSAY_ID, parts)
-							.orElse(get(iPEPTIDE, parts))
-							.orElse(get(iCOMPOUND, parts)).get) 
-						
-			if (!assays.contains(id))
-				assays += id -> new AssayBuilder
-			
-			val pmz = parts(iPREC_MZ).toDouble
-			Try(parts(iFRAG_MZ).toDouble) match {
-				case Success(fmz) =>
-					assays(id).frags += Frag(tid, pmz, fmz)
-				case Failure(msg) =>
-					assays(id).precs += Prec(tid, pmz)
-			}
+				val id = 
+					if (iASSAY_ID >= 0) parts(iASSAY_ID) 
+					else 
+						get(iPEPTIDE, parts).getOrElse(get(iCOMPOUND, parts).get)+
+							"+".padTo(parts(iZ).toInt, '+') +
+						getTraceLabel(parts(iTRACE_ID), msLevel)
+					
+				val tid = without(
+							parts(iTRACE_ID), 
+							get(iASSAY_ID, parts)
+								.orElse(get(iPEPTIDE, parts))
+								.orElse(get(iCOMPOUND, parts)).get) 
+							
+				if (!assays.contains(id))
+					assays += id -> new AssayBuilder
+				
+				val pmz = parts(iPREC_MZ).toDouble
+				Try(parts(iFRAG_MZ).toDouble) match {
+					case Success(fmz) =>
+						assays(id).frags += Frag(tid, pmz, fmz)
+					case Failure(msg) =>
+						assays(id).precs += Prec(tid, pmz)
+				}
+			} 
 		}
 		
 		Success(assays.keys.toSeq.sorted.map(id => new Assay(id, assays(id).precs, assays(id).frags)).toSeq)

@@ -9,10 +9,14 @@ import Tcp._
 
 object MSDataProtocolActors {
 	
+	
+	val SIZE_MSG_SIZE = 5
+	
 	trait MSDataProtocolMsg
 	case class MSDataProtocolError(msg:String, address:InetSocketAddress) extends MSDataProtocolMsg
 	case class MSDataProtocolStatus(msg:String, address:InetSocketAddress) extends MSDataProtocolMsg
 	case class MSDataReply(msg:MSDataProtocol.MasterReply, nBytes:Int, checkSum:Long, timeTaken:Long, address:InetSocketAddress) extends MSDataProtocolMsg
+	case class MSDataRequest(msg:MSDataProtocol.MasterRequest, nBytes:Int, checkSum:Long, address:InetSocketAddress) extends MSDataProtocolMsg
 	case class MSDataProtocolConnected(remote:InetSocketAddress, local:InetSocketAddress) extends MSDataProtocolMsg
 	
 	object ClientInitiator {
@@ -44,73 +48,40 @@ object MSDataProtocolActors {
 		def props(customer:ActorRef, connection:ActorRef) =
 			Props(classOf[ClientManager], customer, connection)
 	}
-	class ClientManager(customer:ActorRef, connection:ActorRef) extends Actor {
-		
-		var sendTime:Long = 0
-		var repSize:Int = 0
-		var dataBuffer = ByteString()
-		var remote:InetSocketAddress = _
+	class ClientManager(
+			customer:ActorRef, 
+			connection:ActorRef
+	) extends MSDataConnectionManager(customer, connection) {
 		
 		import MSDataProtocol._
 		
-		def receive = {
-			case c @ Connected(remote, local) =>
-				this.remote = remote
-				customer ! MSDataProtocolConnected(remote, local)
-			
-			case req:MasterRequest =>
-				//println("CLIENT: wrote %d bytes".format(data.length))
-				connection ! Write(ByteString() ++ req.toByteArray)
-				sendTime = System.currentTimeMillis
-			
-			case reqBuider:MasterRequest.Builder =>
-				//println("CLIENT: wrote %d bytes".format(data.length))
-				connection ! Write(ByteString() ++ reqBuider.build.toByteArray)
-				sendTime = System.currentTimeMillis
-				
-			case CommandFailed(w: Write) => // O/S buffer was full
-				customer ! MSDataProtocolError("cmd failed", remote)
-				
-			case Received(data) =>
-				if (repSize == 0) {
-					val sizeMsg = ReplySize.parseFrom(data.take(5).toArray)
-					repSize = sizeMsg.getSize
-					dataBuffer = data.drop(5)
-				} else 
-					dataBuffer = dataBuffer ++ data
-				
-				if (dataBuffer.length == repSize) {
-					val msg = MasterReply.parseFrom(dataBuffer.toArray)
-					customer ! MSDataReply(
-							msg, 
-							dataBuffer.length, 
-							dataBuffer.map(_.toLong).sum, 
-							System.currentTimeMillis - sendTime,
-							remote
-						)
-					repSize = 0
-				}
-				
-			case "close" =>
-				connection ! Close
-			
-			case _: ConnectionClosed =>
-				customer ! MSDataProtocolStatus("connection closed", remote)
-				context stop self
-		}
+		def parseIncoming(bytes:Array[Byte]):Any = 
+			MSDataReply(
+				MasterReply.parseFrom(bytes.toArray), 
+				bytes.length, 
+				bytes.map(_.toLong).sum, 
+				System.currentTimeMillis - sendTime,
+				remote
+			)
+		
+		def makeOutMessage(x:Any):Array[Byte] =
+			x match {
+				case req:MasterRequest => req.toByteArray
+				case reqBuider:MasterRequest.Builder => reqBuider.build.toByteArray
+			}
 	}
 	
 	
 	
-	object Server {
+	object ServerInitiator {
 		def props(
 				incoming:InetSocketAddress, 
 				logger:ActorRef, 
 				reqHandler:() => ActorRef
-		) = Props(classOf[Server], incoming, logger, reqHandler)
+		) = Props(classOf[ServerInitiator], incoming, logger, reqHandler)
 	}
 	
-	class Server(
+	class ServerInitiator(
 			incoming:InetSocketAddress, 
 			logger:ActorRef, 
 			reqHandler:() => ActorRef
@@ -130,9 +101,88 @@ object MSDataProtocolActors {
 	
 			case c @ Connected(remote, local) =>
 				logger ! MSDataProtocolStatus("handling connection from "+remote, remote)
-				sender() ! Register(reqHandler())
+				val connection = sender
+				val manager = context.actorOf(ServerManager.props(reqHandler(), connection))
+				connection ! Register(manager)
+				manager ! c
 		}
+	}
 	
+	
+	
+	object ServerManager {
+		def props(reqHandler:ActorRef, connection:ActorRef) =
+			Props(classOf[ServerManager], reqHandler, connection)
+	}
+	class ServerManager(
+			reqHandler:ActorRef, 
+			connection:ActorRef
+	) extends MSDataConnectionManager(reqHandler, connection) {
+		
+		import MSDataProtocol._
+		
+		def parseIncoming(bytes:Array[Byte]):Any = 
+			MSDataRequest(MasterRequest.parseFrom(bytes), bytes.length, bytes.map(_.toLong).sum, remote)
+		
+		def makeOutMessage(x:Any):Array[Byte] =
+			x match {
+				case reply:MasterReply => reply.toByteArray
+				case replyBuider:MasterReply.Builder => replyBuider.build.toByteArray
+			}
+	}
+	
+	
+	abstract class MSDataConnectionManager(downStream:ActorRef, connection:ActorRef) extends Actor {
+		var inSize:Int = 0
+		var dataBuffer = ByteString()
+		var remote:InetSocketAddress = _
+		var sendTime = 0L
+		
+		import MSDataProtocol._
+		
+		def receive = {
+			case c @ Connected(remote, local) =>
+				this.remote = remote
+				downStream ! MSDataProtocolConnected(remote, local)
+				
+			case CommandFailed(w: Write) => // O/S buffer was full
+				downStream ! MSDataProtocolError("cmd failed", remote)
+				
+			case Received(data) =>
+				dataBuffer = dataBuffer ++ data
+				if (inSize == 0 && dataBuffer.length >= SIZE_MSG_SIZE) {
+					val sizeMsg = MsgSize.parseFrom(dataBuffer.take(SIZE_MSG_SIZE).toArray)
+					inSize = sizeMsg.getSize
+					dataBuffer = dataBuffer.drop(5)
+				}
+				
+				if (dataBuffer.length >= inSize) {
+					downStream ! parseIncoming(dataBuffer.take(inSize).toArray)
+					dataBuffer = dataBuffer.drop(inSize)
+					inSize = 0
+				}
+			
+			case _: ConnectionClosed =>
+				downStream ! MSDataProtocolStatus("connection closed", remote)
+				context stop self
+				
+			case "close" =>
+				connection ! Close
+				
+			case x =>
+				connection ! Write(prependSize(makeOutMessage(x)))
+				sendTime = System.currentTimeMillis
+		}
+		
+		def parseIncoming(bytes:Array[Byte]):Any
+		
+		def makeOutMessage(x:Any):Array[Byte]
+		
+		def prependSize(bytes:Array[Byte]):ByteString = {
+			val sizeMsg = MsgSize.newBuilder.setSize(bytes.length)
+			val headBytes = sizeMsg.build.toByteArray
+			ByteString() ++ headBytes ++ bytes
+		}
 	}
 	
 }
