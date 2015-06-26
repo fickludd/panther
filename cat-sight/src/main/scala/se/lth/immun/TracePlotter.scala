@@ -20,10 +20,11 @@ object TracePlotter {
 		
 	case class Datum(rt:Double, intensity:Double, id:String)
 	trait TracePlotterMsg
-	case class PopZoom(n:Int) extends TracePlotterMsg
-	case class SetZoomFilter(f:(Datum, Int) => Boolean) extends TracePlotterMsg
+	//case class PopZoom(n:Int) extends TracePlotterMsg
+	//case class SetZoomFilter(f:(Datum, Int) => Boolean) extends TracePlotterMsg
 	case object HideLegend extends TracePlotterMsg
 	case object ShowLegend extends TracePlotterMsg
+	case class RemoveAssayTracePeak(peakID:Int) extends TracePlotterMsg
 	
 	case class PlotUpdate(id:PlotID, plot:BufferedImage, control:PlotsControl[Datum, Datum, Datum])
 }
@@ -33,9 +34,13 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 	import TracePlotter._
 	import Scale._
 	import Stratifier._
+	import PlotBuffer._
+	import PeakIntegrator._
 	
 	var size = new Dimension(1000, 600)
 	var plot:Option[LinePlot[Datum]] = None
+	val assayPeakPlot = new AssayPeakPlot
+	val peakIDs = new IDGenerator
 	
 	def receive = {
 		case (reply:MasterReply, assay:Assay) =>
@@ -49,28 +54,46 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 		case msg:MSDataProtocolActors.MSDataProtocolMsg =>
 			println(msg)
 			
-		case d:Dimension =>
+		case NewSize(_, d) =>
 			if (d.getHeight > 0 && d.getWidth > 0)
 			size = d
 			plot.foreach(p => swingActor ! plotUpdate(p))
 				
-		case PopZoom(n) =>
-			plot match {
-				case Some(p) if p.filters.nonEmpty =>
-					p.filters.pop
-					swingActor ! plotUpdate(p)
+		case Select(fromID, f) =>
+			println("NEW SELECT from %s to %s ".format(fromID, id))
+			for (p <- plot) {
+				val integrator = context.actorOf(Props[PeakIntegrator], "integrator")
+				def filter(data:Seq[Datum], f:(Datum, Int) => Boolean) =
+					for {
+						i <- 0 until data.length
+						if f(data(i),i)
+					} yield data(i)
 						
-				case Some(_) => {}
-				case None => {}
+				integrator ! PeakIntegrator.Integrate(id, peakIDs.next, filter(p.data, f), swingActor)
 			}
 			
+		case atp:AssayTracePeak =>
+			assayPeakPlot.peaks.clear
+			assayPeakPlot.peaks += atp
+			for (p <- plot)
+				swingActor ! plotUpdate(p)
+				
+		case RemoveAssayTracePeak(peakID) =>
+			assayPeakPlot.remove(peakID)
+			for (p <- plot)
+				swingActor ! plotUpdate(p)
 			
-		case SetZoomFilter(f) =>
-			plot match {
-				case None => {}
-				case Some(p) =>
-					p.filters.push(f)
+		case PopZoom(_, n) =>
+			for (p <- plot)
+				if (p.filters.nonEmpty) {
+					p.filters.pop
 					swingActor ! plotUpdate(p)
+				}
+			
+		case NewZoom(_, f) =>
+			for (p <- plot) {
+				p.filters.push(f)
+				swingActor ! plotUpdate(p)
 			}
 			
 		case HideLegend =>
@@ -128,6 +151,7 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 				.y(_.intensity)
 				.color(_.id)
 		p.hideLegends = hideLegend
+		p.overlays += assayPeakPlot
 		p
 	}
 }

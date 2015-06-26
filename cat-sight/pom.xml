@@ -2,14 +2,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>se.lth.immun</groupId>
   <artifactId>CatSight</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <inceptionYear>2015</inceptionYear>
   <properties>
     <scala.version>2.10.0</scala.version>
-    <short.name>panther</short.name>
     <mainClass>se.lth.immun.CatSight</mainClass>
-    <script.file>target/${short.name}</script.file>
-    <selfContained.jar>${basedir}/target/${build.finalName}.free.jar</selfContained.jar>
   </properties>
   
   <dependencies>
@@ -140,6 +137,8 @@
       <plugin>
 	    <artifactId>maven-assembly-plugin</artifactId>
 	    <configuration>
+              <finalName>${artifactId}-${version}.free</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
 	      <descriptorRefs>
 	        <descriptorRef>jar-with-dependencies</descriptorRef>
 	      </descriptorRefs>

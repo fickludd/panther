@@ -3,6 +3,7 @@ package se.lth.immun
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import java.awt.Color
+import java.awt.KeyboardFocusManager
 import java.net.InetSocketAddress
 
 import scala.collection.mutable.HashMap
@@ -10,7 +11,7 @@ import CatSightPrimaries._
 
 class GUI(params: CatSightParams) extends SimpleSwingApplication {
 
-	class RLabel(str:String) extends Label(str) {
+	case class RLabel(str:String) extends Label(str) {
 		horizontalTextPosition = Alignment.Right
 		horizontalAlignment = Alignment.Right
 	}
@@ -20,6 +21,12 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 		foreground = Color.CYAN
 		opaque = true
 	}
+	
+	class RoundComboBox[T](data:Seq[T]) extends ComboBox[T](data) {
+		def next = {
+			selection.index = (selection.index + 1) % data.length
+		}
+	}
 
 	// ASSAY CONTROL COLUMN
 	val assayList = new ListView[Assay]
@@ -28,19 +35,20 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 	val filterStatus = new Label
 	val posFilterField = new FilterField
 	val negFilterField = new FilterField
-	val saveAssays = new Button { text = "save" }
-	val saveAll = new CheckBox { text = "save all" }
+	val saveAssays = new Button { text = "save assays" }
+	val saveAll = new CheckBox { text = "save all assays" }
 	
 	// TRACE DISPLAY
 	val sourceLegend = new GridPanel(1, 1)
 	val plots = new GridPanel(1,1)
-	val syncZoom = new CheckBox { text = "synz zoom" }
+	val zoomMode = new RoundComboBox(PlotActionBehaviour.list)
+	val selectMode = new RoundComboBox(PlotActionBehaviour.list)
 	val hideLegends = new CheckBox { text = "hide legends" }
 	val addSource = new Button { text = "add source" }
+	val savePeaks = new Button { text = "save peaks" }
 	
-	//plots.contents += new PlotBuffer
-	
-	//assayList.listData = (0 until 10).map(i => Assay.random(3, 6))
+	val kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager
+	kfm.addKeyEventDispatcher(GlobalKeyBinder)
 	
 	val assayColumn = new BorderPanel {
 		val topGrid = new GridPanel(1, 2) {
@@ -66,10 +74,14 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 	val top = new MainFrame {
 		title = "Cat Sight MS data visualizer"
 		preferredSize = new Dimension(1000, 700)
-		val traceControl = new GridPanel(1,2) {
-			contents += syncZoom
+		val traceControl = new GridPanel(1,7) {
+			contents += RLabel("zoom mode")
+			contents += zoomMode
+			contents += RLabel("select mode")
+			contents += selectMode
 			contents += hideLegends
 			contents += addSource
+			contents += savePeaks
 		}
 		val traceDisplay = new BorderPanel {
 			layout(sourceLegend) = North
@@ -89,6 +101,7 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 		      */
 		}
 	}
+	
 	if (top.size == new Dimension(0, 0)) top.pack()
 	top.visible = true
 	

@@ -16,9 +16,9 @@ object CatSightPrimaries {
 	
 	case class PlotID(assayId:String, source:InetSocketAddress) {
 		val intID = getID
-		override def toString = "[%d, %s]".format(assayId, source)
+		override def toString = "[%s, %s]".format(assayId, source)
 	}
-	case class AssayTrace(plotter:ActorRef, plotBuffer:PlotBuffer, listener:PlotBuffer.Listener)
+	case class AssayTrace(plotter:ActorRef, plotBuffer:PlotBuffer)
 	class Source(
 			val name:String, 
 			val initiator:ActorRef
@@ -54,4 +54,15 @@ object CatSightPrimaries {
 			}
 		}
 	}
+	
+	
+	case class AssayTracePeak(
+			id:PlotID, 
+			peakID:Int,
+			intensitySum:Double, 
+			intensityMax:Double, 
+			rtStart:Double, 
+			rtApex:Double, 
+			rtEnd:Double
+		)
 }

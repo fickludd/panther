@@ -11,14 +11,20 @@ import se.jt.PlotControl
 import CatSightPrimaries._
 
 object PlotBuffer {
-	case class Marker[D, X, Y](ctrl:PlotControl[D, X, Y], px:Int, py:Int)
+	case class Marker[D, X, Y](ctrl:PlotControl[D, X, Y], px:Int, py:Int, mm:MouseMode)
 	
-	class Listener(pb:PlotBuffer, f:Dimension => Unit) extends Reactor {
-		listenTo(pb)
-		reactions += {
-			case e:UIElementResized => f(pb.size)
-		}
-	}
+	trait MouseMode
+	case object XZoom extends MouseMode
+	case object XYZoom extends MouseMode
+	case object YZoom extends MouseMode
+	case object Select extends MouseMode
+	
+	trait PlotBufferEvent extends Event { def id:PlotID }
+	trait PlotBufferZoomEvent extends PlotBufferEvent
+	case class NewZoom(id:PlotID, f:(TracePlotter.Datum, Int) => Boolean) extends PlotBufferZoomEvent
+	case class PopZoom(id:PlotID, n:Int) extends PlotBufferZoomEvent
+	case class Select(id:PlotID, f:(TracePlotter.Datum, Int) => Boolean) extends PlotBufferEvent
+	case class NewSize(id:PlotID, size:Dimension) extends PlotBufferEvent
 }
 
 class PlotBuffer(val id:PlotID) extends Component {
@@ -31,10 +37,13 @@ class PlotBuffer(val id:PlotID) extends Component {
 	
 	var m1:Option[Marker[Datum, Datum, Datum]] = None
 	var m2:Option[Marker[Datum, Datum, Datum]] = None
-		
-	var onNewZoom:((TracePlotter.Datum, Int) => Boolean) => Unit = f => {}
-	var onZoomPop:Int => Unit = i => {}
 	
+	listenTo(this)
+	reactions += {
+		case e:UIElementResized => publish(NewSize(id, size))
+		case fl:FocusLost =>
+	}
+
 	def setImg(img:BufferedImage) = {
 		_img = Some(img)
 		repaint
@@ -53,14 +62,24 @@ class PlotBuffer(val id:PlotID) extends Component {
 		repaint
 	}
 	
-	listenTo(this.mouse.moves)
-	listenTo(this.mouse.clicks)
+	var mouseMode:MouseMode = XZoom
+	def setMouseMode(mm:MouseMode) = {
+		mouseMode = mm
+		for (Marker(ctrl, px, py, _) <- m1)
+			m1 = Some(Marker(ctrl, px, py, mm))
+		repaint
+	}
+	
+	listenTo(mouse.moves, mouse.clicks, keys, this)
 	reactions += {
+		case me:MouseEntered =>
+			requestFocusInWindow
+			
 		case mm:MouseMoved =>
 			for (control <- _control) {
 				control.getControl(mm.point.x, mm.point.y) match {
 					case Some(ctrl) =>
-						m1 = Some(Marker(ctrl, mm.point.x, mm.point.y))
+						m1 = Some(Marker(ctrl, mm.point.x, mm.point.y, mouseMode))
 						repaint
 						
 					case None => 
@@ -73,7 +92,7 @@ class PlotBuffer(val id:PlotID) extends Component {
 			for (control <- _control) {
 				control.getControl(md.point.x, md.point.y) match {
 					case Some(ctrl) =>
-						m2 = Some(Marker(ctrl, md.point.x, md.point.y))
+						m2 = Some(Marker(ctrl, md.point.x, md.point.y, mouseMode))
 						repaint
 						
 					case None => {}
@@ -83,32 +102,93 @@ class PlotBuffer(val id:PlotID) extends Component {
 		case mr:MouseReleased => 
 			if (mr.peer.getButton == java.awt.event.MouseEvent.BUTTON1) {
 				for {
-					Marker(ctrl, px1, _) <- m1
-					Marker(_, px2, _) <- m2
+					Marker(ctrl, px1, py1, mm1) <- m1
+					Marker(_, px2, py2, _) <- m2
 				} {
-					onNewZoom(ctrl.zoomXFilter(px1, px2))
+					mm1 match {
+						case XZoom 	=> publish(NewZoom(id, ctrl.zoomXFilter(px1, px2)))
+						case YZoom 	=> publish(NewZoom(id, ctrl.zoomYFilter(py1, py2)))
+						case XYZoom => publish(NewZoom(id, (d, i) => {
+								val xOk = ctrl.zoomXFilter(px1, px2)(d, i) 
+								val yOk = ctrl.zoomYFilter(py1, py2)(d, i)
+								xOk && yOk
+							}))
+						case Select => publish(Select(id, ctrl.zoomXFilter(px1, px2)))
+							
+					}
 				}
 			} else 
-				onZoomPop(1)
+				publish(PopZoom(id, 1))
 			repaint
+			
+		case KeyPressed(_, Key.Z,_,_) => setMouseMode(XYZoom)
+		case KeyPressed(_, Key.Y,_,_) => setMouseMode(YZoom)
+		case KeyPressed(_, Key.S,_,_) => setMouseMode(Select)
+		case KeyPressed(_,_,_,_) => println("only z (xy zoom), y (y zoom) and s (select peak) mouse modes are supported")
+			
+		case kr:KeyReleased => setMouseMode(XZoom)
 	}
 		
 	
 	override def paintComponent(g: Graphics2D) {
+		
+		def plotVertMarker[D, X, Y](m:Option[Marker[D, X, Y]]) =
+			for (Marker(ctrl, px, py, mm) <- m) {
+				val cx = ctrl.confineX(px)
+				val cy0 = ctrl.confineY(0)
+				val cy1 = ctrl.confineY(1000000)
+				g.drawLine(cx, cy0, cx, cy1)
+			}
+		
+		def plotHorMarker[D, X, Y](m:Option[Marker[D, X, Y]]) =
+			for (Marker(ctrl, px, py, mm) <- m) {
+				val cx0 = ctrl.confineX(-1000000)
+				val cx1 = ctrl.confineX(1000000)
+				val cy = ctrl.confineY(py)
+				g.drawLine(cx0, cy, cx1, cy)
+			}
+		
 		_img match {
 			case Some(img) =>
 				g.drawImage(img, null, 0, 0)
 					
-				g.setColor(Color.BLACK)
-				def plotMarker[D, X, Y](m:Option[Marker[D, X, Y]]) =
-					for (Marker(ctrl, px, py) <- m) {
-						val cx = ctrl.confineX(px)
-						val cy0 = ctrl.confineY(0)
-						val cy1 = ctrl.confineY(1000000)
-						g.drawLine(cx, cy0, cx, cy1)
+				for (Marker(ctrl, px1, py1, mm) <- m1) {
+					mm match {
+						case XZoom =>
+							g.setColor(Color.BLACK)
+							plotVertMarker(m1)
+							plotVertMarker(m2)
+							
+						case YZoom =>
+							g.setColor(Color.BLACK)
+							plotHorMarker(m1)
+							plotHorMarker(m2)
+							
+						case Select =>
+							g.setColor(Color.RED)
+							plotVertMarker(m1)
+							plotVertMarker(m2)
+							
+						case XYZoom =>
+							m2 match {
+								case Some(Marker(_, px2, py2, _)) =>
+									g.setColor(Color.BLACK)
+									val x1 = ctrl.confineX(px1)
+									val y1 = ctrl.confineY(py1)
+									val x2 = ctrl.confineX(px2)
+									val y2 = ctrl.confineY(py2)
+									g.drawRect(math.min(x1, x2), math.min(y1, y2), math.abs(x1-x2), math.abs(y1-y2))
+									
+								case None =>
+									g.setColor(Color.BLACK)
+									val x1 = ctrl.confineX(px1)
+									val y1 = ctrl.confineY(py1)
+									g.drawLine(x1-10, y1, x1+10, y1)
+									g.drawLine(x1, y1-10, x1, y1+10)
+							}
+							
 					}
-				plotMarker(m1)
-				plotMarker(m2)
+				}
 				
 			case None => 
 				g.setColor(Color.BLACK)

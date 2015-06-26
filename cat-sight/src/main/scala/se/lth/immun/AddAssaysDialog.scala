@@ -17,26 +17,28 @@ import se.lth.immun.xml.XmlReader
 import se.lth.immun.traml.ghost._
 
 class AddAssaysDialog(
-		onClose:Seq[Assay] => Unit
+		onClose:Seq[Assay] => Unit,
+		params:LoadAssayParams,
+		traMLOpt:Option[String] = None
 ) extends Dialog {
 	
 	
 	val addTraml = Button("traml") { 
 		val tramlChooser = new FileChooser(new File("."))
-		tramlChooser.showDialog(assayText, null)
+		tramlChooser.showOpenDialog(assayText)
 		if (tramlChooser.selectedFile != null)
 			readTraml(tramlChooser.selectedFile)
 	}
 	val addTextFile = Button("csv/tsv") { 
 		val fileChooser = new FileChooser(new File("."))
-		fileChooser.showDialog(assayText, null)
+		fileChooser.showOpenDialog(assayText)
 		if (fileChooser.selectedFile != null)
 			readTextFile(fileChooser.selectedFile)
 	}
 	val splitPrecAndFrag = new CheckBox { text = "split prec/frag" }
-	val fragFilterRE = new TextField
-	val fragSubGroupRE = new TextField
-	val precSubGroupRE = new TextField
+	val fragFilterRE = new TextField { text = params.fragFilterRE }
+	val fragSubGroupRE = new TextField { text = params.fragSubGroupRE }
+	val precSubGroupRE = new TextField { text = params.precSubGroupRE }
 	val cancel = Button("cancel") { 
 		onClose(Nil)
 		close
@@ -50,10 +52,15 @@ class AddAssaysDialog(
 				errorFeedback.text = e.getMessage
 		}
 	}
+	
 	val errorFeedback = new Label
 	val assayText = new TextArea
 	preferredSize = new Dimension(800, 600)
 	
+	for (traML <- traMLOpt)
+		readTraml(new File(traML))
+	
+	ok.requestFocusInWindow
 	
 	contents = new BorderPanel {
 		val bottomGrid = new GridPanel(4, 1) {
