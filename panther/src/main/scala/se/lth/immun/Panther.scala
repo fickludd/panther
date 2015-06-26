@@ -55,7 +55,23 @@ object Panther extends CLIApp {
 		else
 			MzMLReader.parseMzML(getReader(params.mzML), ds, params)
 			
-		println("READY!")
+		println()
+		println("* File loaded into memory")
+		print("* Trying garbage collection...")
+		
+		def totMemMb =
+			Runtime.getRuntime().totalMemory() / 1000000
+		
+		val headBefore = totMemMb
+		System.gc()
+		println("done")
+		println("")
+		
+		println("        PANTHER SERVER IS READY")
+		println("        =======================")
+		println("             file: "+params.mzML.value)
+		println("          address: "+params.address.value)
+		println("  (heap) mem used: %d Mb".format(totMemMb))
 		
 		system.awaitTermination
 		println("done")

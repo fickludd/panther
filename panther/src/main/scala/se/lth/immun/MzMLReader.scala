@@ -12,9 +12,12 @@ import scala.collection.mutable.Queue
 
 object MzMLReader {
 	
-	val ISOLATION_WINDOW_ACC = "MS:1000827"
+	val ISOLATION_WINDOW_TARGET = "MS:1000827"
+	val ISOLATION_WINDOW_LOWER_OFF = "MS:1000828"
+	val ISOLATION_WINDOW_UPPER_OFF = "MS:1000829"
 	val SELECTED_ION_MZ_ACC = "MS:1000744"
 		
+	import DataStorer._
 		
 	def parseMzML(r:XmlReader, ds:DataStorer, params:PantherParams) = {
 		MzML.fromFile(r, new MzMLDataHandlers(
@@ -53,16 +56,16 @@ object MzMLReader {
 				val ints = gs.intensities.toArray
 				
 				val nNoZero = ints.count(_ > 0)
-				val intsWithout0 = new Array[Double](nNoZero)
+				val intsWithout0 = new Array[Float](nNoZero)
 				val mzsWithout0 = new Array[Double](nNoZero)
 				var k = 0
 				for (j <- 0 until mzs.length)
 					if (ints(j) != 0) {
-						intsWithout0(k)=ints(j)
+						intsWithout0(k)=ints(j).toFloat
 						mzsWithout0(k)=mzs(j)
 						k+=1
 					}
-				(gs, DataSpectrum(gs.scanStartTime, mzsWithout0, intsWithout0))
+				(gs, DataSpectrum(gs.scanStartTime.toFloat, mzsWithout0, intsWithout0))
 			}
 		
 		if (specQueue.length > params.specQueueSize)
@@ -91,23 +94,41 @@ object MzMLReader {
 	}
 	
 	
-	def getLevel2Key(gs:GhostSpectrum):Option[Double] = {
-		val iwOpt = gs.spectrum.precursors.head.isolationWindow
-		val siList = gs.spectrum.precursors.head.selectedIons
-		iwOpt match {
-			case Some(iw) =>
-				iw.cvParams.find(_.accession == ISOLATION_WINDOW_ACC) match {
-					case Some(cvParam) =>
-						Some(cvParam.value.get.toDouble)
-					case None =>
-						None
-				}
-			case None =>
-				for {
-					si <- siList.headOption
-					cvParam <- si.cvParams.find(_.accession == "MS:1000744")
-				} yield cvParam.value.get.toDouble
-		}
+	def getLevel2Key(gs:GhostSpectrum):Option[PrecDef] = {
+		val iws = gs.spectrum.precursors.flatMap(_.isolationWindow)
+		val sis = gs.spectrum.precursors.flatMap(_.selectedIons)
+		val iwDef = iws.map(isolationWindow2Range).toSet
+		val siDef = sis.map(trippleTOFselectedIon2Range).toSet
+		if (iwDef.isEmpty && siDef.isEmpty) None
+		else Some(iwDef ++ siDef)
 		
+	}
+	
+	def isolationWindow2Range(iw:IsolationWindow):MzRange = {
+		val iwTarget = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
+		val iwLower = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
+		val iwUpper = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
+		
+		(iwTarget, iwLower, iwUpper) match {
+			case (Some(iwt), Some(iwl), Some(iwu)) =>
+				val tmz = iwt.value.get.toDouble
+				val lmz = iwt.value.get.toDouble
+				val umz = iwt.value.get.toDouble
+				MzRange(tmz-lmz, tmz+umz)
+			case _ =>
+				throw new Exception("Erroneously defined isolation window: target=%s, lower=%s, upper=%s".format(iwTarget, iwLower, iwUpper))
+				
+		}
+	}
+	
+	def trippleTOFselectedIon2Range(si:SelectedIon):MzRange = {
+		val swathCenter = si.cvParams.find(_.accession == SELECTED_ION_MZ_ACC)
+		swathCenter match {
+			case Some(cv) =>
+				val mz = cv.value.get.toDouble
+				MzRange(mz-12.5, mz+12.5)
+			case None =>
+				throw new Exception("Erroneously defined selected ion: NO SELECTED ION MZ")
+		}
 	}
 }

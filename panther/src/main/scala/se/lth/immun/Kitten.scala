@@ -6,6 +6,7 @@ import java.net.InetSocketAddress
 import se.lth.immun.protocol.MSDataProtocolActors
 import se.lth.immun.protocol.MSDataProtocol._
 
+import scala.collection.JavaConversions._
 import scala.util.Random
 
 object Kitten {
@@ -14,8 +15,8 @@ object Kitten {
 	
 	def main(args: Array[String]) = {
 		val system = ActorSystem()
-		//val server = new InetSocketAddress("localhost", 12345)
-		val server = new InetSocketAddress("130.235.249.157", 12346)
+		val server = new InetSocketAddress("localhost", 12345)
+		//val server = new InetSocketAddress("130.235.249.157", 12346)
 		val infinitePoller = system.actorOf(Props[InfinitePoller])
 		val client = system.actorOf(MSDataProtocolActors.ClientInitiator.props(server, infinitePoller))
 		system.awaitTermination
@@ -30,12 +31,38 @@ object Kitten {
 				println(msg)
 
 			case MSDataProtocolConnected(remote, local) =>
-				sender ! reqRandAssay(2+Random.nextInt(5), 5+Random.nextInt(30))
+				sendRandAssay
  
 			case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
-				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
-				sender ! reqRandAssay(2+Random.nextInt(5), 5+Random.nextInt(30))
+				val (nf, nd) = countDataPoints(msg)
+				println("KITTEN| parsed %d bytes in %d ms. %d floats, %d doubles, CHECKSUM=%d".format(nBytes, timeTaken, nf, nd, checkSum))
+				sendRandAssay
 		}
+		
+		
+		
+		def countDataPoints(msg:MasterReply):(Int, Int) = {
+			val traces = msg.getTraces
+			val nFragFloat = traces.getFragmentList.map(f => {
+				f.getSmallTrace.getTimeCount
+			}).sum
+			val nFragDouble = traces.getFragmentList.map(f => {
+				f.getTrace.getTimeCount
+			}).sum
+			val nPrecFloat = traces.getPrecursorList.map(p => {
+				p.getSmallTrace.getTimeCount
+			}).sum
+			val nPrecDouble = traces.getPrecursorList.map(p => {
+				p.getTrace.getTimeCount
+			}).sum
+			(nFragFloat + nPrecFloat, nFragDouble + nPrecDouble)
+		}
+		
+		
+		
+		def sendRandAssay =
+			sender ! reqRandAssay(3, 6)
+			//sender ! reqRandAssay(2+Random.nextInt(5), 5+Random.nextInt(30))
 		
 		
 		
@@ -54,6 +81,7 @@ object Kitten {
 						.setFragment(Bounds.newBuilder.setLmz(mz2-diff2).setHmz(mz2+diff2))
 					)
 			}
+			req.setTransferMode(TransferMode.FLOAT)
 			MasterRequest.newBuilder.setGetTracesFor(req).build
 		}
 		

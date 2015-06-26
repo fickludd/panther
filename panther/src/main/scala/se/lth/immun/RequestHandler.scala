@@ -5,6 +5,7 @@ import akka.io.Tcp
 import akka.util.ByteString
 
 import se.lth.immun.protocol.MSDataProtocol
+import se.lth.immun.protocol.MSDataProtocol.TransferMode
 import se.lth.immun.protocol.MSDataProtocolActors._
 
 import scala.collection.JavaConversions._
@@ -23,7 +24,7 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 			reply.setId(req.getId)
 			if (req.hasGetStatus)
 				replyToGetStatus(reply)
-			if (req.hasGetTracesFor)
+			if (req.hasGetTracesFor) 
 				replyToGetTracesFor(reply, req.getGetTracesFor)
 			
 			sender ! reply.build
@@ -63,29 +64,44 @@ class RequestHandler(val dataStore: DataStore) extends Actor {
 	
 	def replyToGetTracesFor(reply:MasterReply.Builder, req:GetTracesFor) = {
 		val traces = Traces.newBuilder
+		val transferMode = req.getTransferMode
 
 		for (prec <- req.getPrecursorList) {
 			val dataTrace = dataStore.extractL1Trace(prec.getLmz, prec.getHmz)
-			val trace = Trace.newBuilder()
-			for (t <- dataTrace.time) trace.addTime(t)
-			for (int <- dataTrace.intensity) trace.addIntensity(int)
-			traces.addPrecursor(
-				PrecursorTrace.newBuilder
-					.setPrecursor(prec)
-					.setTrace(trace))
+			val precBuilder = PrecursorTrace.newBuilder.setPrecursor(prec)
+			transferMode match {
+				case TransferMode.DOUBLE =>
+					val trace = Trace.newBuilder()
+					for (t <- dataTrace.time) trace.addTime(t)
+					for (int <- dataTrace.intensity) trace.addIntensity(int)
+					precBuilder.setTrace(trace)
+				case TransferMode.FLOAT =>
+					val trace = SmallTrace.newBuilder()
+					for (t <- dataTrace.time) trace.addTime(t)
+					for (int <- dataTrace.intensity) trace.addIntensity(int)
+					precBuilder.setSmallTrace(trace)
+			}
+			traces.addPrecursor(precBuilder)
 		}
 
 		for (frag <- req.getFragmentList) {
 			val dataTrace = dataStore.extractL2Trace(
 				frag.getPrecursor.getLmz, frag.getPrecursor.getHmz,
 				frag.getFragment.getLmz, frag.getFragment.getHmz)
-			val trace = Trace.newBuilder()
-			for (t <- dataTrace.time) trace.addTime(t)
-			for (int <- dataTrace.intensity) trace.addIntensity(int)
-			traces.addFragment(
-				FragmentTrace.newBuilder
-					.setFragment(frag)
-					.setTrace(trace))
+			val fragBuilder = FragmentTrace.newBuilder.setFragment(frag)
+			transferMode match {
+				case TransferMode.DOUBLE =>
+					val trace = Trace.newBuilder()
+					for (t <- dataTrace.time) trace.addTime(t)
+					for (int <- dataTrace.intensity) trace.addIntensity(int)
+					fragBuilder.setTrace(trace)
+				case TransferMode.FLOAT =>
+					val trace = SmallTrace.newBuilder()
+					for (t <- dataTrace.time) trace.addTime(t)
+					for (int <- dataTrace.intensity) trace.addIntensity(int)
+					fragBuilder.setSmallTrace(trace)
+			}
+			traces.addFragment(fragBuilder)
 		}
 		
 		reply.setTraces(traces)
