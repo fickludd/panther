@@ -1,6 +1,7 @@
 package se.lth.immun
 
 import se.lth.immun.protocol.MSDataProtocol
+import se.lth.immun.protocol.MSDataProtocol.TransferMode
 import scala.util.Random
 import scala.collection.mutable.ArrayBuffer
 
@@ -51,6 +52,7 @@ class Assay(
 					.setFragment(Bounds.newBuilder.setLmz(fmz-fDiff).setHmz(fmz+fDiff))
 				)
 		}
+		req.setTransferMode(TransferMode.FLOAT)
 		val mreq = MasterRequest.newBuilder.setGetTracesFor(req)
 		mreq.setId(id)
 		mreq.build

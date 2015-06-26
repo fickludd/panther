@@ -128,8 +128,20 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 			) match {
 				case None => println("TracePlotter: cannot match trace with assay!")
 				case Some(pTrace) =>
-					val trace = pTrace.getTrace.getTimeList.zip(pTrace.getTrace.getIntensityList)
-					data ++= trace.map(t => Datum(t._1, t._2, prec.id))
+					data ++= 
+						(if (pTrace.hasSmallTrace) {
+							val time = pTrace.getSmallTrace.getTimeList
+							val int = pTrace.getSmallTrace.getIntensityList
+							for (i <- 0 until time.length) 
+								yield Datum(time(i).toDouble, int(i).toDouble, prec.id)
+							
+						} else {
+							val time = pTrace.getTrace.getTimeList
+							val int = pTrace.getTrace.getIntensityList
+							for (i <- 0 until time.length) 
+								yield Datum(time(i), int(i), prec.id)
+						})
+					
 			}
 		}
 		
@@ -142,8 +154,19 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 			) match {
 				case None => println("TracePlotter: cannot match trace with assay!")
 				case Some(fTrace) =>
-					val trace = fTrace.getTrace.getTimeList.zip(fTrace.getTrace.getIntensityList)
-					data ++= trace.map(t => Datum(t._1, t._2, frag.id))
+					data ++= 
+						(if (fTrace.hasSmallTrace) {
+							val time = fTrace.getSmallTrace.getTimeList
+							val int = fTrace.getSmallTrace.getIntensityList
+							for (i <- 0 until time.length) 
+								yield Datum(time(i).toDouble, int(i).toDouble, frag.id)
+							
+						} else {
+							val time = fTrace.getTrace.getTimeList
+							val int = fTrace.getTrace.getIntensityList
+							for (i <- 0 until time.length) 
+								yield Datum(time(i), int(i), frag.id)
+						})
 			}
 		}
 		val p = new LinePlot(data)
