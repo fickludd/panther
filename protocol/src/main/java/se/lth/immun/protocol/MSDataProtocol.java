@@ -1231,6 +1231,15 @@ public final class MSDataProtocol {
      */
     se.lth.immun.protocol.MSDataProtocol.FragmentBoundsOrBuilder getFragmentOrBuilder(
         int index);
+
+    /**
+     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     */
+    boolean hasTransferMode();
+    /**
+     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     */
+    se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode();
   }
   /**
    * Protobuf type {@code se.lth.immun.protocol.GetTracesFor}
@@ -1300,6 +1309,17 @@ public final class MSDataProtocol {
               fragment_.add(input.readMessage(se.lth.immun.protocol.MSDataProtocol.FragmentBounds.PARSER, extensionRegistry));
               break;
             }
+            case 32: {
+              int rawValue = input.readEnum();
+              se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode value = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.valueOf(rawValue);
+              if (value == null) {
+                unknownFields.mergeVarintField(4, rawValue);
+              } else {
+                bitField0_ |= 0x00000001;
+                transferMode_ = value;
+              }
+              break;
+            }
           }
         }
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -1345,6 +1365,89 @@ public final class MSDataProtocol {
       return PARSER;
     }
 
+    /**
+     * Protobuf enum {@code se.lth.immun.protocol.GetTracesFor.TransferMode}
+     */
+    public enum TransferMode
+        implements com.google.protobuf.ProtocolMessageEnum {
+      /**
+       * <code>DOUBLE = 0;</code>
+       */
+      DOUBLE(0, 0),
+      /**
+       * <code>FLOAT = 1;</code>
+       */
+      FLOAT(1, 1),
+      ;
+
+      /**
+       * <code>DOUBLE = 0;</code>
+       */
+      public static final int DOUBLE_VALUE = 0;
+      /**
+       * <code>FLOAT = 1;</code>
+       */
+      public static final int FLOAT_VALUE = 1;
+
+
+      public final int getNumber() { return value; }
+
+      public static TransferMode valueOf(int value) {
+        switch (value) {
+          case 0: return DOUBLE;
+          case 1: return FLOAT;
+          default: return null;
+        }
+      }
+
+      public static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
+          internalGetValueMap() {
+        return internalValueMap;
+      }
+      private static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
+          internalValueMap =
+            new com.google.protobuf.Internal.EnumLiteMap<TransferMode>() {
+              public TransferMode findValueByNumber(int number) {
+                return TransferMode.valueOf(number);
+              }
+            };
+
+      public final com.google.protobuf.Descriptors.EnumValueDescriptor
+          getValueDescriptor() {
+        return getDescriptor().getValues().get(index);
+      }
+      public final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptorForType() {
+        return getDescriptor();
+      }
+      public static final com.google.protobuf.Descriptors.EnumDescriptor
+          getDescriptor() {
+        return se.lth.immun.protocol.MSDataProtocol.GetTracesFor.getDescriptor().getEnumTypes().get(0);
+      }
+
+      private static final TransferMode[] VALUES = values();
+
+      public static TransferMode valueOf(
+          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        if (desc.getType() != getDescriptor()) {
+          throw new java.lang.IllegalArgumentException(
+            "EnumValueDescriptor is not for this type.");
+        }
+        return VALUES[desc.getIndex()];
+      }
+
+      private final int index;
+      private final int value;
+
+      private TransferMode(int index, int value) {
+        this.index = index;
+        this.value = value;
+      }
+
+      // @@protoc_insertion_point(enum_scope:se.lth.immun.protocol.GetTracesFor.TransferMode)
+    }
+
+    private int bitField0_;
     public static final int PRECURSOR_FIELD_NUMBER = 2;
     private java.util.List<se.lth.immun.protocol.MSDataProtocol.Bounds> precursor_;
     /**
@@ -1415,9 +1518,25 @@ public final class MSDataProtocol {
       return fragment_.get(index);
     }
 
+    public static final int TRANSFERMODE_FIELD_NUMBER = 4;
+    private se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode transferMode_;
+    /**
+     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     */
+    public boolean hasTransferMode() {
+      return ((bitField0_ & 0x00000001) == 0x00000001);
+    }
+    /**
+     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     */
+    public se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode() {
+      return transferMode_;
+    }
+
     private void initFields() {
       precursor_ = java.util.Collections.emptyList();
       fragment_ = java.util.Collections.emptyList();
+      transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1438,6 +1557,9 @@ public final class MSDataProtocol {
       for (int i = 0; i < fragment_.size(); i++) {
         output.writeMessage(3, fragment_.get(i));
       }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        output.writeEnum(4, transferMode_.getNumber());
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -1454,6 +1576,10 @@ public final class MSDataProtocol {
       for (int i = 0; i < fragment_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(3, fragment_.get(i));
+      }
+      if (((bitField0_ & 0x00000001) == 0x00000001)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeEnumSize(4, transferMode_.getNumber());
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1586,6 +1712,8 @@ public final class MSDataProtocol {
         } else {
           fragmentBuilder_.clear();
         }
+        transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -1613,6 +1741,7 @@ public final class MSDataProtocol {
       public se.lth.immun.protocol.MSDataProtocol.GetTracesFor buildPartial() {
         se.lth.immun.protocol.MSDataProtocol.GetTracesFor result = new se.lth.immun.protocol.MSDataProtocol.GetTracesFor(this);
         int from_bitField0_ = bitField0_;
+        int to_bitField0_ = 0;
         if (precursorBuilder_ == null) {
           if (((bitField0_ & 0x00000001) == 0x00000001)) {
             precursor_ = java.util.Collections.unmodifiableList(precursor_);
@@ -1631,6 +1760,11 @@ public final class MSDataProtocol {
         } else {
           result.fragment_ = fragmentBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000001;
+        }
+        result.transferMode_ = transferMode_;
+        result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
       }
@@ -1697,6 +1831,9 @@ public final class MSDataProtocol {
               fragmentBuilder_.addAllMessages(other.fragment_);
             }
           }
+        }
+        if (other.hasTransferMode()) {
+          setTransferMode(other.getTransferMode());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -2203,6 +2340,41 @@ public final class MSDataProtocol {
           fragment_ = null;
         }
         return fragmentBuilder_;
+      }
+
+      private se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+      /**
+       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       */
+      public boolean hasTransferMode() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode() {
+        return transferMode_;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       */
+      public Builder setTransferMode(se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode value) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        bitField0_ |= 0x00000004;
+        transferMode_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       */
+      public Builder clearTransferMode() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+        onChanged();
+        return this;
       }
 
       // @@protoc_insertion_point(builder_scope:se.lth.immun.protocol.GetTracesFor)
@@ -3924,6 +4096,626 @@ public final class MSDataProtocol {
     // @@protoc_insertion_point(class_scope:se.lth.immun.protocol.Trace)
   }
 
+  public interface SmallTraceOrBuilder extends
+      // @@protoc_insertion_point(interface_extends:se.lth.immun.protocol.SmallTrace)
+      com.google.protobuf.MessageOrBuilder {
+
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    java.util.List<java.lang.Float> getTimeList();
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    int getTimeCount();
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    float getTime(int index);
+
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    java.util.List<java.lang.Float> getIntensityList();
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    int getIntensityCount();
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    float getIntensity(int index);
+  }
+  /**
+   * Protobuf type {@code se.lth.immun.protocol.SmallTrace}
+   */
+  public static final class SmallTrace extends
+      com.google.protobuf.GeneratedMessage implements
+      // @@protoc_insertion_point(message_implements:se.lth.immun.protocol.SmallTrace)
+      SmallTraceOrBuilder {
+    // Use SmallTrace.newBuilder() to construct.
+    private SmallTrace(com.google.protobuf.GeneratedMessage.Builder<?> builder) {
+      super(builder);
+      this.unknownFields = builder.getUnknownFields();
+    }
+    private SmallTrace(boolean noInit) { this.unknownFields = com.google.protobuf.UnknownFieldSet.getDefaultInstance(); }
+
+    private static final SmallTrace defaultInstance;
+    public static SmallTrace getDefaultInstance() {
+      return defaultInstance;
+    }
+
+    public SmallTrace getDefaultInstanceForType() {
+      return defaultInstance;
+    }
+
+    private final com.google.protobuf.UnknownFieldSet unknownFields;
+    @java.lang.Override
+    public final com.google.protobuf.UnknownFieldSet
+        getUnknownFields() {
+      return this.unknownFields;
+    }
+    private SmallTrace(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      initFields();
+      int mutable_bitField0_ = 0;
+      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
+          com.google.protobuf.UnknownFieldSet.newBuilder();
+      try {
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            default: {
+              if (!parseUnknownField(input, unknownFields,
+                                     extensionRegistry, tag)) {
+                done = true;
+              }
+              break;
+            }
+            case 13: {
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+                time_ = new java.util.ArrayList<java.lang.Float>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              time_.add(input.readFloat());
+              break;
+            }
+            case 10: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000001) == 0x00000001) && input.getBytesUntilLimit() > 0) {
+                time_ = new java.util.ArrayList<java.lang.Float>();
+                mutable_bitField0_ |= 0x00000001;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                time_.add(input.readFloat());
+              }
+              input.popLimit(limit);
+              break;
+            }
+            case 21: {
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+                intensity_ = new java.util.ArrayList<java.lang.Float>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              intensity_.add(input.readFloat());
+              break;
+            }
+            case 18: {
+              int length = input.readRawVarint32();
+              int limit = input.pushLimit(length);
+              if (!((mutable_bitField0_ & 0x00000002) == 0x00000002) && input.getBytesUntilLimit() > 0) {
+                intensity_ = new java.util.ArrayList<java.lang.Float>();
+                mutable_bitField0_ |= 0x00000002;
+              }
+              while (input.getBytesUntilLimit() > 0) {
+                intensity_.add(input.readFloat());
+              }
+              input.popLimit(limit);
+              break;
+            }
+          }
+        }
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(this);
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(
+            e.getMessage()).setUnfinishedMessage(this);
+      } finally {
+        if (((mutable_bitField0_ & 0x00000001) == 0x00000001)) {
+          time_ = java.util.Collections.unmodifiableList(time_);
+        }
+        if (((mutable_bitField0_ & 0x00000002) == 0x00000002)) {
+          intensity_ = java.util.Collections.unmodifiableList(intensity_);
+        }
+        this.unknownFields = unknownFields.build();
+        makeExtensionsImmutable();
+      }
+    }
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return se.lth.immun.protocol.MSDataProtocol.internal_static_se_lth_immun_protocol_SmallTrace_descriptor;
+    }
+
+    protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return se.lth.immun.protocol.MSDataProtocol.internal_static_se_lth_immun_protocol_SmallTrace_fieldAccessorTable
+          .ensureFieldAccessorsInitialized(
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace.class, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder.class);
+    }
+
+    public static com.google.protobuf.Parser<SmallTrace> PARSER =
+        new com.google.protobuf.AbstractParser<SmallTrace>() {
+      public SmallTrace parsePartialFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        return new SmallTrace(input, extensionRegistry);
+      }
+    };
+
+    @java.lang.Override
+    public com.google.protobuf.Parser<SmallTrace> getParserForType() {
+      return PARSER;
+    }
+
+    public static final int TIME_FIELD_NUMBER = 1;
+    private java.util.List<java.lang.Float> time_;
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    public java.util.List<java.lang.Float>
+        getTimeList() {
+      return time_;
+    }
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    public int getTimeCount() {
+      return time_.size();
+    }
+    /**
+     * <code>repeated float time = 1;</code>
+     */
+    public float getTime(int index) {
+      return time_.get(index);
+    }
+
+    public static final int INTENSITY_FIELD_NUMBER = 2;
+    private java.util.List<java.lang.Float> intensity_;
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    public java.util.List<java.lang.Float>
+        getIntensityList() {
+      return intensity_;
+    }
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    public int getIntensityCount() {
+      return intensity_.size();
+    }
+    /**
+     * <code>repeated float intensity = 2;</code>
+     */
+    public float getIntensity(int index) {
+      return intensity_.get(index);
+    }
+
+    private void initFields() {
+      time_ = java.util.Collections.emptyList();
+      intensity_ = java.util.Collections.emptyList();
+    }
+    private byte memoizedIsInitialized = -1;
+    public final boolean isInitialized() {
+      byte isInitialized = memoizedIsInitialized;
+      if (isInitialized == 1) return true;
+      if (isInitialized == 0) return false;
+
+      memoizedIsInitialized = 1;
+      return true;
+    }
+
+    public void writeTo(com.google.protobuf.CodedOutputStream output)
+                        throws java.io.IOException {
+      getSerializedSize();
+      for (int i = 0; i < time_.size(); i++) {
+        output.writeFloat(1, time_.get(i));
+      }
+      for (int i = 0; i < intensity_.size(); i++) {
+        output.writeFloat(2, intensity_.get(i));
+      }
+      getUnknownFields().writeTo(output);
+    }
+
+    private int memoizedSerializedSize = -1;
+    public int getSerializedSize() {
+      int size = memoizedSerializedSize;
+      if (size != -1) return size;
+
+      size = 0;
+      {
+        int dataSize = 0;
+        dataSize = 4 * getTimeList().size();
+        size += dataSize;
+        size += 1 * getTimeList().size();
+      }
+      {
+        int dataSize = 0;
+        dataSize = 4 * getIntensityList().size();
+        size += dataSize;
+        size += 1 * getIntensityList().size();
+      }
+      size += getUnknownFields().getSerializedSize();
+      memoizedSerializedSize = size;
+      return size;
+    }
+
+    private static final long serialVersionUID = 0L;
+    @java.lang.Override
+    protected java.lang.Object writeReplace()
+        throws java.io.ObjectStreamException {
+      return super.writeReplace();
+    }
+
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      return PARSER.parseFrom(data, extensionRegistry);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseDelimitedFrom(input, extensionRegistry);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input);
+    }
+    public static se.lth.immun.protocol.MSDataProtocol.SmallTrace parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
+      return PARSER.parseFrom(input, extensionRegistry);
+    }
+
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(se.lth.immun.protocol.MSDataProtocol.SmallTrace prototype) {
+      return newBuilder().mergeFrom(prototype);
+    }
+    public Builder toBuilder() { return newBuilder(this); }
+
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+      Builder builder = new Builder(parent);
+      return builder;
+    }
+    /**
+     * Protobuf type {@code se.lth.immun.protocol.SmallTrace}
+     */
+    public static final class Builder extends
+        com.google.protobuf.GeneratedMessage.Builder<Builder> implements
+        // @@protoc_insertion_point(builder_implements:se.lth.immun.protocol.SmallTrace)
+        se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder {
+      public static final com.google.protobuf.Descriptors.Descriptor
+          getDescriptor() {
+        return se.lth.immun.protocol.MSDataProtocol.internal_static_se_lth_immun_protocol_SmallTrace_descriptor;
+      }
+
+      protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return se.lth.immun.protocol.MSDataProtocol.internal_static_se_lth_immun_protocol_SmallTrace_fieldAccessorTable
+            .ensureFieldAccessorsInitialized(
+                se.lth.immun.protocol.MSDataProtocol.SmallTrace.class, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder.class);
+      }
+
+      // Construct using se.lth.immun.protocol.MSDataProtocol.SmallTrace.newBuilder()
+      private Builder() {
+        maybeForceBuilderInitialization();
+      }
+
+      private Builder(
+          com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        super(parent);
+        maybeForceBuilderInitialization();
+      }
+      private void maybeForceBuilderInitialization() {
+        if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
+        }
+      }
+      private static Builder create() {
+        return new Builder();
+      }
+
+      public Builder clear() {
+        super.clear();
+        time_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        intensity_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        return this;
+      }
+
+      public Builder clone() {
+        return create().mergeFrom(buildPartial());
+      }
+
+      public com.google.protobuf.Descriptors.Descriptor
+          getDescriptorForType() {
+        return se.lth.immun.protocol.MSDataProtocol.internal_static_se_lth_immun_protocol_SmallTrace_descriptor;
+      }
+
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace getDefaultInstanceForType() {
+        return se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+      }
+
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace build() {
+        se.lth.immun.protocol.MSDataProtocol.SmallTrace result = buildPartial();
+        if (!result.isInitialized()) {
+          throw newUninitializedMessageException(result);
+        }
+        return result;
+      }
+
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace buildPartial() {
+        se.lth.immun.protocol.MSDataProtocol.SmallTrace result = new se.lth.immun.protocol.MSDataProtocol.SmallTrace(this);
+        int from_bitField0_ = bitField0_;
+        if (((bitField0_ & 0x00000001) == 0x00000001)) {
+          time_ = java.util.Collections.unmodifiableList(time_);
+          bitField0_ = (bitField0_ & ~0x00000001);
+        }
+        result.time_ = time_;
+        if (((bitField0_ & 0x00000002) == 0x00000002)) {
+          intensity_ = java.util.Collections.unmodifiableList(intensity_);
+          bitField0_ = (bitField0_ & ~0x00000002);
+        }
+        result.intensity_ = intensity_;
+        onBuilt();
+        return result;
+      }
+
+      public Builder mergeFrom(com.google.protobuf.Message other) {
+        if (other instanceof se.lth.immun.protocol.MSDataProtocol.SmallTrace) {
+          return mergeFrom((se.lth.immun.protocol.MSDataProtocol.SmallTrace)other);
+        } else {
+          super.mergeFrom(other);
+          return this;
+        }
+      }
+
+      public Builder mergeFrom(se.lth.immun.protocol.MSDataProtocol.SmallTrace other) {
+        if (other == se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance()) return this;
+        if (!other.time_.isEmpty()) {
+          if (time_.isEmpty()) {
+            time_ = other.time_;
+            bitField0_ = (bitField0_ & ~0x00000001);
+          } else {
+            ensureTimeIsMutable();
+            time_.addAll(other.time_);
+          }
+          onChanged();
+        }
+        if (!other.intensity_.isEmpty()) {
+          if (intensity_.isEmpty()) {
+            intensity_ = other.intensity_;
+            bitField0_ = (bitField0_ & ~0x00000002);
+          } else {
+            ensureIntensityIsMutable();
+            intensity_.addAll(other.intensity_);
+          }
+          onChanged();
+        }
+        this.mergeUnknownFields(other.getUnknownFields());
+        return this;
+      }
+
+      public final boolean isInitialized() {
+        return true;
+      }
+
+      public Builder mergeFrom(
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
+        se.lth.immun.protocol.MSDataProtocol.SmallTrace parsedMessage = null;
+        try {
+          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+          parsedMessage = (se.lth.immun.protocol.MSDataProtocol.SmallTrace) e.getUnfinishedMessage();
+          throw e;
+        } finally {
+          if (parsedMessage != null) {
+            mergeFrom(parsedMessage);
+          }
+        }
+        return this;
+      }
+      private int bitField0_;
+
+      private java.util.List<java.lang.Float> time_ = java.util.Collections.emptyList();
+      private void ensureTimeIsMutable() {
+        if (!((bitField0_ & 0x00000001) == 0x00000001)) {
+          time_ = new java.util.ArrayList<java.lang.Float>(time_);
+          bitField0_ |= 0x00000001;
+         }
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public java.util.List<java.lang.Float>
+          getTimeList() {
+        return java.util.Collections.unmodifiableList(time_);
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public int getTimeCount() {
+        return time_.size();
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public float getTime(int index) {
+        return time_.get(index);
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public Builder setTime(
+          int index, float value) {
+        ensureTimeIsMutable();
+        time_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public Builder addTime(float value) {
+        ensureTimeIsMutable();
+        time_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public Builder addAllTime(
+          java.lang.Iterable<? extends java.lang.Float> values) {
+        ensureTimeIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, time_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float time = 1;</code>
+       */
+      public Builder clearTime() {
+        time_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000001);
+        onChanged();
+        return this;
+      }
+
+      private java.util.List<java.lang.Float> intensity_ = java.util.Collections.emptyList();
+      private void ensureIntensityIsMutable() {
+        if (!((bitField0_ & 0x00000002) == 0x00000002)) {
+          intensity_ = new java.util.ArrayList<java.lang.Float>(intensity_);
+          bitField0_ |= 0x00000002;
+         }
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public java.util.List<java.lang.Float>
+          getIntensityList() {
+        return java.util.Collections.unmodifiableList(intensity_);
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public int getIntensityCount() {
+        return intensity_.size();
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public float getIntensity(int index) {
+        return intensity_.get(index);
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public Builder setIntensity(
+          int index, float value) {
+        ensureIntensityIsMutable();
+        intensity_.set(index, value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public Builder addIntensity(float value) {
+        ensureIntensityIsMutable();
+        intensity_.add(value);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public Builder addAllIntensity(
+          java.lang.Iterable<? extends java.lang.Float> values) {
+        ensureIntensityIsMutable();
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, intensity_);
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>repeated float intensity = 2;</code>
+       */
+      public Builder clearIntensity() {
+        intensity_ = java.util.Collections.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000002);
+        onChanged();
+        return this;
+      }
+
+      // @@protoc_insertion_point(builder_scope:se.lth.immun.protocol.SmallTrace)
+    }
+
+    static {
+      defaultInstance = new SmallTrace(true);
+      defaultInstance.initFields();
+    }
+
+    // @@protoc_insertion_point(class_scope:se.lth.immun.protocol.SmallTrace)
+  }
+
   public interface PrecursorTraceOrBuilder extends
       // @@protoc_insertion_point(interface_extends:se.lth.immun.protocol.PrecursorTrace)
       com.google.protobuf.MessageOrBuilder {
@@ -3953,6 +4745,19 @@ public final class MSDataProtocol {
      * <code>optional .se.lth.immun.protocol.Trace trace = 2;</code>
      */
     se.lth.immun.protocol.MSDataProtocol.TraceOrBuilder getTraceOrBuilder();
+
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    boolean hasSmallTrace();
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace();
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder();
   }
   /**
    * Protobuf type {@code se.lth.immun.protocol.PrecursorTrace}
@@ -4030,6 +4835,19 @@ public final class MSDataProtocol {
                 trace_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 26: {
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                subBuilder = smallTrace_.toBuilder();
+              }
+              smallTrace_ = input.readMessage(se.lth.immun.protocol.MSDataProtocol.SmallTrace.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(smallTrace_);
+                smallTrace_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000004;
               break;
             }
           }
@@ -4114,9 +4932,31 @@ public final class MSDataProtocol {
       return trace_;
     }
 
+    public static final int SMALLTRACE_FIELD_NUMBER = 3;
+    private se.lth.immun.protocol.MSDataProtocol.SmallTrace smallTrace_;
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public boolean hasSmallTrace() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace() {
+      return smallTrace_;
+    }
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder() {
+      return smallTrace_;
+    }
+
     private void initFields() {
       precursor_ = se.lth.immun.protocol.MSDataProtocol.Bounds.getDefaultInstance();
       trace_ = se.lth.immun.protocol.MSDataProtocol.Trace.getDefaultInstance();
+      smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -4137,6 +4977,9 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, trace_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeMessage(3, smallTrace_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -4153,6 +4996,10 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, trace_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, smallTrace_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4265,6 +5112,7 @@ public final class MSDataProtocol {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getPrecursorFieldBuilder();
           getTraceFieldBuilder();
+          getSmallTraceFieldBuilder();
         }
       }
       private static Builder create() {
@@ -4285,6 +5133,12 @@ public final class MSDataProtocol {
           traceBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+        } else {
+          smallTraceBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -4329,6 +5183,14 @@ public final class MSDataProtocol {
         } else {
           result.trace_ = traceBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        if (smallTraceBuilder_ == null) {
+          result.smallTrace_ = smallTrace_;
+        } else {
+          result.smallTrace_ = smallTraceBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -4350,6 +5212,9 @@ public final class MSDataProtocol {
         }
         if (other.hasTrace()) {
           mergeTrace(other.getTrace());
+        }
+        if (other.hasSmallTrace()) {
+          mergeSmallTrace(other.getSmallTrace());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -4610,6 +5475,122 @@ public final class MSDataProtocol {
         return traceBuilder_;
       }
 
+      private se.lth.immun.protocol.MSDataProtocol.SmallTrace smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder> smallTraceBuilder_;
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public boolean hasSmallTrace() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace() {
+        if (smallTraceBuilder_ == null) {
+          return smallTrace_;
+        } else {
+          return smallTraceBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder setSmallTrace(se.lth.immun.protocol.MSDataProtocol.SmallTrace value) {
+        if (smallTraceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          smallTrace_ = value;
+          onChanged();
+        } else {
+          smallTraceBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder setSmallTrace(
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder builderForValue) {
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = builderForValue.build();
+          onChanged();
+        } else {
+          smallTraceBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder mergeSmallTrace(se.lth.immun.protocol.MSDataProtocol.SmallTrace value) {
+        if (smallTraceBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              smallTrace_ != se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance()) {
+            smallTrace_ =
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace.newBuilder(smallTrace_).mergeFrom(value).buildPartial();
+          } else {
+            smallTrace_ = value;
+          }
+          onChanged();
+        } else {
+          smallTraceBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder clearSmallTrace() {
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+          onChanged();
+        } else {
+          smallTraceBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder getSmallTraceBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getSmallTraceFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder() {
+        if (smallTraceBuilder_ != null) {
+          return smallTraceBuilder_.getMessageOrBuilder();
+        } else {
+          return smallTrace_;
+        }
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder> 
+          getSmallTraceFieldBuilder() {
+        if (smallTraceBuilder_ == null) {
+          smallTraceBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder>(
+                  getSmallTrace(),
+                  getParentForChildren(),
+                  isClean());
+          smallTrace_ = null;
+        }
+        return smallTraceBuilder_;
+      }
+
       // @@protoc_insertion_point(builder_scope:se.lth.immun.protocol.PrecursorTrace)
     }
 
@@ -4650,6 +5631,19 @@ public final class MSDataProtocol {
      * <code>optional .se.lth.immun.protocol.Trace trace = 2;</code>
      */
     se.lth.immun.protocol.MSDataProtocol.TraceOrBuilder getTraceOrBuilder();
+
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    boolean hasSmallTrace();
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace();
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder();
   }
   /**
    * Protobuf type {@code se.lth.immun.protocol.FragmentTrace}
@@ -4727,6 +5721,19 @@ public final class MSDataProtocol {
                 trace_ = subBuilder.buildPartial();
               }
               bitField0_ |= 0x00000002;
+              break;
+            }
+            case 26: {
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder subBuilder = null;
+              if (((bitField0_ & 0x00000004) == 0x00000004)) {
+                subBuilder = smallTrace_.toBuilder();
+              }
+              smallTrace_ = input.readMessage(se.lth.immun.protocol.MSDataProtocol.SmallTrace.PARSER, extensionRegistry);
+              if (subBuilder != null) {
+                subBuilder.mergeFrom(smallTrace_);
+                smallTrace_ = subBuilder.buildPartial();
+              }
+              bitField0_ |= 0x00000004;
               break;
             }
           }
@@ -4811,9 +5818,31 @@ public final class MSDataProtocol {
       return trace_;
     }
 
+    public static final int SMALLTRACE_FIELD_NUMBER = 3;
+    private se.lth.immun.protocol.MSDataProtocol.SmallTrace smallTrace_;
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public boolean hasSmallTrace() {
+      return ((bitField0_ & 0x00000004) == 0x00000004);
+    }
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace() {
+      return smallTrace_;
+    }
+    /**
+     * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+     */
+    public se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder() {
+      return smallTrace_;
+    }
+
     private void initFields() {
       fragment_ = se.lth.immun.protocol.MSDataProtocol.FragmentBounds.getDefaultInstance();
       trace_ = se.lth.immun.protocol.MSDataProtocol.Trace.getDefaultInstance();
+      smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -4834,6 +5863,9 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         output.writeMessage(2, trace_);
       }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        output.writeMessage(3, smallTrace_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -4850,6 +5882,10 @@ public final class MSDataProtocol {
       if (((bitField0_ & 0x00000002) == 0x00000002)) {
         size += com.google.protobuf.CodedOutputStream
           .computeMessageSize(2, trace_);
+      }
+      if (((bitField0_ & 0x00000004) == 0x00000004)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, smallTrace_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -4962,6 +5998,7 @@ public final class MSDataProtocol {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getFragmentFieldBuilder();
           getTraceFieldBuilder();
+          getSmallTraceFieldBuilder();
         }
       }
       private static Builder create() {
@@ -4982,6 +6019,12 @@ public final class MSDataProtocol {
           traceBuilder_.clear();
         }
         bitField0_ = (bitField0_ & ~0x00000002);
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+        } else {
+          smallTraceBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -5026,6 +6069,14 @@ public final class MSDataProtocol {
         } else {
           result.trace_ = traceBuilder_.build();
         }
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000004;
+        }
+        if (smallTraceBuilder_ == null) {
+          result.smallTrace_ = smallTrace_;
+        } else {
+          result.smallTrace_ = smallTraceBuilder_.build();
+        }
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -5047,6 +6098,9 @@ public final class MSDataProtocol {
         }
         if (other.hasTrace()) {
           mergeTrace(other.getTrace());
+        }
+        if (other.hasSmallTrace()) {
+          mergeSmallTrace(other.getSmallTrace());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -5305,6 +6359,122 @@ public final class MSDataProtocol {
           trace_ = null;
         }
         return traceBuilder_;
+      }
+
+      private se.lth.immun.protocol.MSDataProtocol.SmallTrace smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+      private com.google.protobuf.SingleFieldBuilder<
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder> smallTraceBuilder_;
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public boolean hasSmallTrace() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace getSmallTrace() {
+        if (smallTraceBuilder_ == null) {
+          return smallTrace_;
+        } else {
+          return smallTraceBuilder_.getMessage();
+        }
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder setSmallTrace(se.lth.immun.protocol.MSDataProtocol.SmallTrace value) {
+        if (smallTraceBuilder_ == null) {
+          if (value == null) {
+            throw new NullPointerException();
+          }
+          smallTrace_ = value;
+          onChanged();
+        } else {
+          smallTraceBuilder_.setMessage(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder setSmallTrace(
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder builderForValue) {
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = builderForValue.build();
+          onChanged();
+        } else {
+          smallTraceBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder mergeSmallTrace(se.lth.immun.protocol.MSDataProtocol.SmallTrace value) {
+        if (smallTraceBuilder_ == null) {
+          if (((bitField0_ & 0x00000004) == 0x00000004) &&
+              smallTrace_ != se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance()) {
+            smallTrace_ =
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace.newBuilder(smallTrace_).mergeFrom(value).buildPartial();
+          } else {
+            smallTrace_ = value;
+          }
+          onChanged();
+        } else {
+          smallTraceBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000004;
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public Builder clearSmallTrace() {
+        if (smallTraceBuilder_ == null) {
+          smallTrace_ = se.lth.immun.protocol.MSDataProtocol.SmallTrace.getDefaultInstance();
+          onChanged();
+        } else {
+          smallTraceBuilder_.clear();
+        }
+        bitField0_ = (bitField0_ & ~0x00000004);
+        return this;
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder getSmallTraceBuilder() {
+        bitField0_ |= 0x00000004;
+        onChanged();
+        return getSmallTraceFieldBuilder().getBuilder();
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      public se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder getSmallTraceOrBuilder() {
+        if (smallTraceBuilder_ != null) {
+          return smallTraceBuilder_.getMessageOrBuilder();
+        } else {
+          return smallTrace_;
+        }
+      }
+      /**
+       * <code>optional .se.lth.immun.protocol.SmallTrace smallTrace = 3;</code>
+       */
+      private com.google.protobuf.SingleFieldBuilder<
+          se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder> 
+          getSmallTraceFieldBuilder() {
+        if (smallTraceBuilder_ == null) {
+          smallTraceBuilder_ = new com.google.protobuf.SingleFieldBuilder<
+              se.lth.immun.protocol.MSDataProtocol.SmallTrace, se.lth.immun.protocol.MSDataProtocol.SmallTrace.Builder, se.lth.immun.protocol.MSDataProtocol.SmallTraceOrBuilder>(
+                  getSmallTrace(),
+                  getParentForChildren(),
+                  isClean());
+          smallTrace_ = null;
+        }
+        return smallTraceBuilder_;
       }
 
       // @@protoc_insertion_point(builder_scope:se.lth.immun.protocol.FragmentTrace)
@@ -9157,6 +10327,11 @@ public final class MSDataProtocol {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_se_lth_immun_protocol_Trace_fieldAccessorTable;
   private static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_se_lth_immun_protocol_SmallTrace_descriptor;
+  private static
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_se_lth_immun_protocol_SmallTrace_fieldAccessorTable;
+  private static final com.google.protobuf.Descriptors.Descriptor
     internal_static_se_lth_immun_protocol_PrecursorTrace_descriptor;
   private static
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -9204,35 +10379,42 @@ public final class MSDataProtocol {
       "\n\006Bounds\022\013\n\003lmz\030\001 \001(\001\022\013\n\003hmz\030\002 \001(\001\"s\n\016Fr" +
       "agmentBounds\0220\n\tprecursor\030\001 \001(\0132\035.se.lth" +
       ".immun.protocol.Bounds\022/\n\010fragment\030\002 \001(\013" +
-      "2\035.se.lth.immun.protocol.Bounds\"y\n\014GetTr" +
-      "acesFor\0220\n\tprecursor\030\002 \003(\0132\035.se.lth.immu" +
-      "n.protocol.Bounds\0227\n\010fragment\030\003 \003(\0132%.se" +
-      ".lth.immun.protocol.FragmentBounds\"\013\n\tGe" +
+      "2\035.se.lth.immun.protocol.Bounds\"\360\001\n\014GetT" +
+      "racesFor\0220\n\tprecursor\030\002 \003(\0132\035.se.lth.imm" +
+      "un.protocol.Bounds\0227\n\010fragment\030\003 \003(\0132%.s" +
+      "e.lth.immun.protocol.FragmentBounds\022N\n\014t" +
+      "ransferMode\030\004 \001(\01620.se.lth.immun.protoco" +
+      "l.GetTracesFor.TransferMode:\006DOUBLE\"%\n\014T",
+      "ransferMode\022\n\n\006DOUBLE\020\000\022\t\n\005FLOAT\020\001\"\013\n\tGe" +
       "tStatus\"\213\001\n\rMasterRequest\0223\n\tgetStatus\030\001" +
-      " \001(\0132 .se.lth.immun.protocol.GetStatus\0229",
+      " \001(\0132 .se.lth.immun.protocol.GetStatus\0229" +
       "\n\014getTracesFor\030\002 \001(\0132#.se.lth.immun.prot" +
       "ocol.GetTracesFor\022\n\n\002id\030\017 \001(\005\"(\n\005Trace\022\014" +
-      "\n\004time\030\001 \003(\001\022\021\n\tintensity\030\002 \003(\001\"o\n\016Precu" +
-      "rsorTrace\0220\n\tprecursor\030\001 \001(\0132\035.se.lth.im" +
-      "mun.protocol.Bounds\022+\n\005trace\030\002 \001(\0132\034.se." +
-      "lth.immun.protocol.Trace\"u\n\rFragmentTrac" +
-      "e\0227\n\010fragment\030\001 \001(\0132%.se.lth.immun.proto" +
-      "col.FragmentBounds\022+\n\005trace\030\002 \001(\0132\034.se.l" +
-      "th.immun.protocol.Trace\"z\n\006Traces\0228\n\tpre" +
-      "cursor\030\001 \003(\0132%.se.lth.immun.protocol.Pre",
-      "cursorTrace\0226\n\010fragment\030\002 \003(\0132$.se.lth.i" +
-      "mmun.protocol.FragmentTrace\"\243\001\n\006Status\0228" +
-      "\n\006status\030\001 \002(\0162(.se.lth.immun.protocol.S" +
-      "tatus.StatusType\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010p" +
-      "rogress\030\003 \001(\001\022\023\n\013progressMax\030\004 \001(\001\"%\n\nSt" +
-      "atusType\022\017\n\013loadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Err" +
-      "or\022\014\n\004type\030\001 \002(\005\022\013\n\003msg\030\002 \002(\t\"\027\n\007MsgSize" +
-      "\022\014\n\004size\030\001 \002(\007\"\244\001\n\013MasterReply\022-\n\006status" +
-      "\030\001 \001(\0132\035.se.lth.immun.protocol.Status\022-\n" +
-      "\006traces\030\002 \001(\0132\035.se.lth.immun.protocol.Tr",
-      "aces\022\n\n\002id\030\017 \001(\005\022+\n\005error\030c \001(\0132\034.se.lth" +
-      ".immun.protocol.ErrorB\'\n\025se.lth.immun.pr" +
-      "otocolB\016MSDataProtocol"
+      "\n\004time\030\001 \003(\001\022\021\n\tintensity\030\002 \003(\001\"-\n\nSmall" +
+      "Trace\022\014\n\004time\030\001 \003(\002\022\021\n\tintensity\030\002 \003(\002\"\246" +
+      "\001\n\016PrecursorTrace\0220\n\tprecursor\030\001 \001(\0132\035.s" +
+      "e.lth.immun.protocol.Bounds\022+\n\005trace\030\002 \001" +
+      "(\0132\034.se.lth.immun.protocol.Trace\0225\n\nsmal",
+      "lTrace\030\003 \001(\0132!.se.lth.immun.protocol.Sma" +
+      "llTrace\"\254\001\n\rFragmentTrace\0227\n\010fragment\030\001 " +
+      "\001(\0132%.se.lth.immun.protocol.FragmentBoun" +
+      "ds\022+\n\005trace\030\002 \001(\0132\034.se.lth.immun.protoco" +
+      "l.Trace\0225\n\nsmallTrace\030\003 \001(\0132!.se.lth.imm" +
+      "un.protocol.SmallTrace\"z\n\006Traces\0228\n\tprec" +
+      "ursor\030\001 \003(\0132%.se.lth.immun.protocol.Prec" +
+      "ursorTrace\0226\n\010fragment\030\002 \003(\0132$.se.lth.im" +
+      "mun.protocol.FragmentTrace\"\243\001\n\006Status\0228\n" +
+      "\006status\030\001 \002(\0162(.se.lth.immun.protocol.St",
+      "atus.StatusType\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010pr" +
+      "ogress\030\003 \001(\001\022\023\n\013progressMax\030\004 \001(\001\"%\n\nSta" +
+      "tusType\022\017\n\013loadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Erro" +
+      "r\022\014\n\004type\030\001 \002(\005\022\013\n\003msg\030\002 \002(\t\"\027\n\007MsgSize\022" +
+      "\014\n\004size\030\001 \002(\007\"\244\001\n\013MasterReply\022-\n\006status\030" +
+      "\001 \001(\0132\035.se.lth.immun.protocol.Status\022-\n\006" +
+      "traces\030\002 \001(\0132\035.se.lth.immun.protocol.Tra" +
+      "ces\022\n\n\002id\030\017 \001(\005\022+\n\005error\030c \001(\0132\034.se.lth." +
+      "immun.protocol.ErrorB\'\n\025se.lth.immun.pro" +
+      "tocolB\016MSDataProtocol"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -9263,7 +10445,7 @@ public final class MSDataProtocol {
     internal_static_se_lth_immun_protocol_GetTracesFor_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_GetTracesFor_descriptor,
-        new java.lang.String[] { "Precursor", "Fragment", });
+        new java.lang.String[] { "Precursor", "Fragment", "TransferMode", });
     internal_static_se_lth_immun_protocol_GetStatus_descriptor =
       getDescriptor().getMessageTypes().get(3);
     internal_static_se_lth_immun_protocol_GetStatus_fieldAccessorTable = new
@@ -9282,44 +10464,50 @@ public final class MSDataProtocol {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_Trace_descriptor,
         new java.lang.String[] { "Time", "Intensity", });
-    internal_static_se_lth_immun_protocol_PrecursorTrace_descriptor =
+    internal_static_se_lth_immun_protocol_SmallTrace_descriptor =
       getDescriptor().getMessageTypes().get(6);
+    internal_static_se_lth_immun_protocol_SmallTrace_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_se_lth_immun_protocol_SmallTrace_descriptor,
+        new java.lang.String[] { "Time", "Intensity", });
+    internal_static_se_lth_immun_protocol_PrecursorTrace_descriptor =
+      getDescriptor().getMessageTypes().get(7);
     internal_static_se_lth_immun_protocol_PrecursorTrace_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_PrecursorTrace_descriptor,
-        new java.lang.String[] { "Precursor", "Trace", });
+        new java.lang.String[] { "Precursor", "Trace", "SmallTrace", });
     internal_static_se_lth_immun_protocol_FragmentTrace_descriptor =
-      getDescriptor().getMessageTypes().get(7);
+      getDescriptor().getMessageTypes().get(8);
     internal_static_se_lth_immun_protocol_FragmentTrace_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_FragmentTrace_descriptor,
-        new java.lang.String[] { "Fragment", "Trace", });
+        new java.lang.String[] { "Fragment", "Trace", "SmallTrace", });
     internal_static_se_lth_immun_protocol_Traces_descriptor =
-      getDescriptor().getMessageTypes().get(8);
+      getDescriptor().getMessageTypes().get(9);
     internal_static_se_lth_immun_protocol_Traces_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_Traces_descriptor,
         new java.lang.String[] { "Precursor", "Fragment", });
     internal_static_se_lth_immun_protocol_Status_descriptor =
-      getDescriptor().getMessageTypes().get(9);
+      getDescriptor().getMessageTypes().get(10);
     internal_static_se_lth_immun_protocol_Status_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_Status_descriptor,
         new java.lang.String[] { "Status", "StatusMsg", "Progress", "ProgressMax", });
     internal_static_se_lth_immun_protocol_Error_descriptor =
-      getDescriptor().getMessageTypes().get(10);
+      getDescriptor().getMessageTypes().get(11);
     internal_static_se_lth_immun_protocol_Error_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_Error_descriptor,
         new java.lang.String[] { "Type", "Msg", });
     internal_static_se_lth_immun_protocol_MsgSize_descriptor =
-      getDescriptor().getMessageTypes().get(11);
+      getDescriptor().getMessageTypes().get(12);
     internal_static_se_lth_immun_protocol_MsgSize_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_MsgSize_descriptor,
         new java.lang.String[] { "Size", });
     internal_static_se_lth_immun_protocol_MasterReply_descriptor =
-      getDescriptor().getMessageTypes().get(12);
+      getDescriptor().getMessageTypes().get(13);
     internal_static_se_lth_immun_protocol_MasterReply_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_se_lth_immun_protocol_MasterReply_descriptor,

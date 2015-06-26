@@ -19,6 +19,11 @@ message FragmentBounds {
 message GetTracesFor {
 	repeated Bounds precursor = 2;
 	repeated FragmentBounds fragment = 3;
+	enum TransferMode {
+    	DOUBLE = 0;
+    	FLOAT = 1;
+	}
+	optional TransferMode transferMode = 4 [default = DOUBLE];
 }
 
 message GetStatus {}
@@ -38,14 +43,21 @@ message Trace {
 	repeated double intensity = 2;
 }
 
+message SmallTrace {
+	repeated float time = 1;
+	repeated float intensity = 2;
+}
+
 message PrecursorTrace {
 	optional Bounds precursor = 1;
 	optional Trace trace = 2;
+	optional SmallTrace smallTrace = 3;
 }
 
 message FragmentTrace {
 	optional FragmentBounds fragment = 1;
 	optional Trace trace = 2;
+	optional SmallTrace smallTrace = 3;
 }
 
 message Traces {
