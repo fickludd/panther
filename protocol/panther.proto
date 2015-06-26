@@ -5,6 +5,10 @@ option java_outer_classname = "MSDataProtocol";
 
 
 // CLIENT TO SERVER
+enum TransferMode {
+	DOUBLE = 0;
+	FLOAT = 1;
+}
 
 message Bounds {
 	optional double lmz = 1;
@@ -19,10 +23,6 @@ message FragmentBounds {
 message GetTracesFor {
 	repeated Bounds precursor = 2;
 	repeated FragmentBounds fragment = 3;
-	enum TransferMode {
-    	DOUBLE = 0;
-    	FLOAT = 1;
-	}
 	optional TransferMode transferMode = 4 [default = DOUBLE];
 }
 

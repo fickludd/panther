@@ -8,6 +8,92 @@ public final class MSDataProtocol {
   public static void registerAllExtensions(
       com.google.protobuf.ExtensionRegistry registry) {
   }
+  /**
+   * Protobuf enum {@code se.lth.immun.protocol.TransferMode}
+   *
+   * <pre>
+   * CLIENT TO SERVER
+   * </pre>
+   */
+  public enum TransferMode
+      implements com.google.protobuf.ProtocolMessageEnum {
+    /**
+     * <code>DOUBLE = 0;</code>
+     */
+    DOUBLE(0, 0),
+    /**
+     * <code>FLOAT = 1;</code>
+     */
+    FLOAT(1, 1),
+    ;
+
+    /**
+     * <code>DOUBLE = 0;</code>
+     */
+    public static final int DOUBLE_VALUE = 0;
+    /**
+     * <code>FLOAT = 1;</code>
+     */
+    public static final int FLOAT_VALUE = 1;
+
+
+    public final int getNumber() { return value; }
+
+    public static TransferMode valueOf(int value) {
+      switch (value) {
+        case 0: return DOUBLE;
+        case 1: return FLOAT;
+        default: return null;
+      }
+    }
+
+    public static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
+        internalGetValueMap() {
+      return internalValueMap;
+    }
+    private static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<TransferMode>() {
+            public TransferMode findValueByNumber(int number) {
+              return TransferMode.valueOf(number);
+            }
+          };
+
+    public final com.google.protobuf.Descriptors.EnumValueDescriptor
+        getValueDescriptor() {
+      return getDescriptor().getValues().get(index);
+    }
+    public final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptorForType() {
+      return getDescriptor();
+    }
+    public static final com.google.protobuf.Descriptors.EnumDescriptor
+        getDescriptor() {
+      return se.lth.immun.protocol.MSDataProtocol.getDescriptor().getEnumTypes().get(0);
+    }
+
+    private static final TransferMode[] VALUES = values();
+
+    public static TransferMode valueOf(
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+      if (desc.getType() != getDescriptor()) {
+        throw new java.lang.IllegalArgumentException(
+          "EnumValueDescriptor is not for this type.");
+      }
+      return VALUES[desc.getIndex()];
+    }
+
+    private final int index;
+    private final int value;
+
+    private TransferMode(int index, int value) {
+      this.index = index;
+      this.value = value;
+    }
+
+    // @@protoc_insertion_point(enum_scope:se.lth.immun.protocol.TransferMode)
+  }
+
   public interface BoundsOrBuilder extends
       // @@protoc_insertion_point(interface_extends:se.lth.immun.protocol.Bounds)
       com.google.protobuf.MessageOrBuilder {
@@ -1233,13 +1319,13 @@ public final class MSDataProtocol {
         int index);
 
     /**
-     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
      */
     boolean hasTransferMode();
     /**
-     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
      */
-    se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode();
+    se.lth.immun.protocol.MSDataProtocol.TransferMode getTransferMode();
   }
   /**
    * Protobuf type {@code se.lth.immun.protocol.GetTracesFor}
@@ -1311,7 +1397,7 @@ public final class MSDataProtocol {
             }
             case 32: {
               int rawValue = input.readEnum();
-              se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode value = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.valueOf(rawValue);
+              se.lth.immun.protocol.MSDataProtocol.TransferMode value = se.lth.immun.protocol.MSDataProtocol.TransferMode.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
@@ -1363,88 +1449,6 @@ public final class MSDataProtocol {
     @java.lang.Override
     public com.google.protobuf.Parser<GetTracesFor> getParserForType() {
       return PARSER;
-    }
-
-    /**
-     * Protobuf enum {@code se.lth.immun.protocol.GetTracesFor.TransferMode}
-     */
-    public enum TransferMode
-        implements com.google.protobuf.ProtocolMessageEnum {
-      /**
-       * <code>DOUBLE = 0;</code>
-       */
-      DOUBLE(0, 0),
-      /**
-       * <code>FLOAT = 1;</code>
-       */
-      FLOAT(1, 1),
-      ;
-
-      /**
-       * <code>DOUBLE = 0;</code>
-       */
-      public static final int DOUBLE_VALUE = 0;
-      /**
-       * <code>FLOAT = 1;</code>
-       */
-      public static final int FLOAT_VALUE = 1;
-
-
-      public final int getNumber() { return value; }
-
-      public static TransferMode valueOf(int value) {
-        switch (value) {
-          case 0: return DOUBLE;
-          case 1: return FLOAT;
-          default: return null;
-        }
-      }
-
-      public static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
-          internalGetValueMap() {
-        return internalValueMap;
-      }
-      private static com.google.protobuf.Internal.EnumLiteMap<TransferMode>
-          internalValueMap =
-            new com.google.protobuf.Internal.EnumLiteMap<TransferMode>() {
-              public TransferMode findValueByNumber(int number) {
-                return TransferMode.valueOf(number);
-              }
-            };
-
-      public final com.google.protobuf.Descriptors.EnumValueDescriptor
-          getValueDescriptor() {
-        return getDescriptor().getValues().get(index);
-      }
-      public final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptorForType() {
-        return getDescriptor();
-      }
-      public static final com.google.protobuf.Descriptors.EnumDescriptor
-          getDescriptor() {
-        return se.lth.immun.protocol.MSDataProtocol.GetTracesFor.getDescriptor().getEnumTypes().get(0);
-      }
-
-      private static final TransferMode[] VALUES = values();
-
-      public static TransferMode valueOf(
-          com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
-        if (desc.getType() != getDescriptor()) {
-          throw new java.lang.IllegalArgumentException(
-            "EnumValueDescriptor is not for this type.");
-        }
-        return VALUES[desc.getIndex()];
-      }
-
-      private final int index;
-      private final int value;
-
-      private TransferMode(int index, int value) {
-        this.index = index;
-        this.value = value;
-      }
-
-      // @@protoc_insertion_point(enum_scope:se.lth.immun.protocol.GetTracesFor.TransferMode)
     }
 
     private int bitField0_;
@@ -1519,24 +1523,24 @@ public final class MSDataProtocol {
     }
 
     public static final int TRANSFERMODE_FIELD_NUMBER = 4;
-    private se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode transferMode_;
+    private se.lth.immun.protocol.MSDataProtocol.TransferMode transferMode_;
     /**
-     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
      */
     public boolean hasTransferMode() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
     /**
-     * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+     * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
      */
-    public se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode() {
+    public se.lth.immun.protocol.MSDataProtocol.TransferMode getTransferMode() {
       return transferMode_;
     }
 
     private void initFields() {
       precursor_ = java.util.Collections.emptyList();
       fragment_ = java.util.Collections.emptyList();
-      transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+      transferMode_ = se.lth.immun.protocol.MSDataProtocol.TransferMode.DOUBLE;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -1712,7 +1716,7 @@ public final class MSDataProtocol {
         } else {
           fragmentBuilder_.clear();
         }
-        transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+        transferMode_ = se.lth.immun.protocol.MSDataProtocol.TransferMode.DOUBLE;
         bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
@@ -2342,23 +2346,23 @@ public final class MSDataProtocol {
         return fragmentBuilder_;
       }
 
-      private se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+      private se.lth.immun.protocol.MSDataProtocol.TransferMode transferMode_ = se.lth.immun.protocol.MSDataProtocol.TransferMode.DOUBLE;
       /**
-       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
        */
       public boolean hasTransferMode() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
-       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
        */
-      public se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode getTransferMode() {
+      public se.lth.immun.protocol.MSDataProtocol.TransferMode getTransferMode() {
         return transferMode_;
       }
       /**
-       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
        */
-      public Builder setTransferMode(se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode value) {
+      public Builder setTransferMode(se.lth.immun.protocol.MSDataProtocol.TransferMode value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -2368,11 +2372,11 @@ public final class MSDataProtocol {
         return this;
       }
       /**
-       * <code>optional .se.lth.immun.protocol.GetTracesFor.TransferMode transferMode = 4 [default = DOUBLE];</code>
+       * <code>optional .se.lth.immun.protocol.TransferMode transferMode = 4 [default = DOUBLE];</code>
        */
       public Builder clearTransferMode() {
         bitField0_ = (bitField0_ & ~0x00000004);
-        transferMode_ = se.lth.immun.protocol.MSDataProtocol.GetTracesFor.TransferMode.DOUBLE;
+        transferMode_ = se.lth.immun.protocol.MSDataProtocol.TransferMode.DOUBLE;
         onChanged();
         return this;
       }
@@ -10379,42 +10383,42 @@ public final class MSDataProtocol {
       "\n\006Bounds\022\013\n\003lmz\030\001 \001(\001\022\013\n\003hmz\030\002 \001(\001\"s\n\016Fr" +
       "agmentBounds\0220\n\tprecursor\030\001 \001(\0132\035.se.lth" +
       ".immun.protocol.Bounds\022/\n\010fragment\030\002 \001(\013" +
-      "2\035.se.lth.immun.protocol.Bounds\"\360\001\n\014GetT" +
+      "2\035.se.lth.immun.protocol.Bounds\"\274\001\n\014GetT" +
       "racesFor\0220\n\tprecursor\030\002 \003(\0132\035.se.lth.imm" +
       "un.protocol.Bounds\0227\n\010fragment\030\003 \003(\0132%.s" +
-      "e.lth.immun.protocol.FragmentBounds\022N\n\014t" +
-      "ransferMode\030\004 \001(\01620.se.lth.immun.protoco" +
-      "l.GetTracesFor.TransferMode:\006DOUBLE\"%\n\014T",
-      "ransferMode\022\n\n\006DOUBLE\020\000\022\t\n\005FLOAT\020\001\"\013\n\tGe" +
-      "tStatus\"\213\001\n\rMasterRequest\0223\n\tgetStatus\030\001" +
-      " \001(\0132 .se.lth.immun.protocol.GetStatus\0229" +
-      "\n\014getTracesFor\030\002 \001(\0132#.se.lth.immun.prot" +
-      "ocol.GetTracesFor\022\n\n\002id\030\017 \001(\005\"(\n\005Trace\022\014" +
-      "\n\004time\030\001 \003(\001\022\021\n\tintensity\030\002 \003(\001\"-\n\nSmall" +
-      "Trace\022\014\n\004time\030\001 \003(\002\022\021\n\tintensity\030\002 \003(\002\"\246" +
-      "\001\n\016PrecursorTrace\0220\n\tprecursor\030\001 \001(\0132\035.s" +
-      "e.lth.immun.protocol.Bounds\022+\n\005trace\030\002 \001" +
-      "(\0132\034.se.lth.immun.protocol.Trace\0225\n\nsmal",
-      "lTrace\030\003 \001(\0132!.se.lth.immun.protocol.Sma" +
-      "llTrace\"\254\001\n\rFragmentTrace\0227\n\010fragment\030\001 " +
-      "\001(\0132%.se.lth.immun.protocol.FragmentBoun" +
-      "ds\022+\n\005trace\030\002 \001(\0132\034.se.lth.immun.protoco" +
-      "l.Trace\0225\n\nsmallTrace\030\003 \001(\0132!.se.lth.imm" +
-      "un.protocol.SmallTrace\"z\n\006Traces\0228\n\tprec" +
-      "ursor\030\001 \003(\0132%.se.lth.immun.protocol.Prec" +
-      "ursorTrace\0226\n\010fragment\030\002 \003(\0132$.se.lth.im" +
-      "mun.protocol.FragmentTrace\"\243\001\n\006Status\0228\n" +
-      "\006status\030\001 \002(\0162(.se.lth.immun.protocol.St",
-      "atus.StatusType\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010pr" +
-      "ogress\030\003 \001(\001\022\023\n\013progressMax\030\004 \001(\001\"%\n\nSta" +
-      "tusType\022\017\n\013loadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Erro" +
-      "r\022\014\n\004type\030\001 \002(\005\022\013\n\003msg\030\002 \002(\t\"\027\n\007MsgSize\022" +
-      "\014\n\004size\030\001 \002(\007\"\244\001\n\013MasterReply\022-\n\006status\030" +
-      "\001 \001(\0132\035.se.lth.immun.protocol.Status\022-\n\006" +
-      "traces\030\002 \001(\0132\035.se.lth.immun.protocol.Tra" +
-      "ces\022\n\n\002id\030\017 \001(\005\022+\n\005error\030c \001(\0132\034.se.lth." +
-      "immun.protocol.ErrorB\'\n\025se.lth.immun.pro" +
-      "tocolB\016MSDataProtocol"
+      "e.lth.immun.protocol.FragmentBounds\022A\n\014t" +
+      "ransferMode\030\004 \001(\0162#.se.lth.immun.protoco" +
+      "l.TransferMode:\006DOUBLE\"\013\n\tGetStatus\"\213\001\n\r",
+      "MasterRequest\0223\n\tgetStatus\030\001 \001(\0132 .se.lt" +
+      "h.immun.protocol.GetStatus\0229\n\014getTracesF" +
+      "or\030\002 \001(\0132#.se.lth.immun.protocol.GetTrac" +
+      "esFor\022\n\n\002id\030\017 \001(\005\"(\n\005Trace\022\014\n\004time\030\001 \003(\001" +
+      "\022\021\n\tintensity\030\002 \003(\001\"-\n\nSmallTrace\022\014\n\004tim" +
+      "e\030\001 \003(\002\022\021\n\tintensity\030\002 \003(\002\"\246\001\n\016Precursor" +
+      "Trace\0220\n\tprecursor\030\001 \001(\0132\035.se.lth.immun." +
+      "protocol.Bounds\022+\n\005trace\030\002 \001(\0132\034.se.lth." +
+      "immun.protocol.Trace\0225\n\nsmallTrace\030\003 \001(\013" +
+      "2!.se.lth.immun.protocol.SmallTrace\"\254\001\n\r",
+      "FragmentTrace\0227\n\010fragment\030\001 \001(\0132%.se.lth" +
+      ".immun.protocol.FragmentBounds\022+\n\005trace\030" +
+      "\002 \001(\0132\034.se.lth.immun.protocol.Trace\0225\n\ns" +
+      "mallTrace\030\003 \001(\0132!.se.lth.immun.protocol." +
+      "SmallTrace\"z\n\006Traces\0228\n\tprecursor\030\001 \003(\0132" +
+      "%.se.lth.immun.protocol.PrecursorTrace\0226" +
+      "\n\010fragment\030\002 \003(\0132$.se.lth.immun.protocol" +
+      ".FragmentTrace\"\243\001\n\006Status\0228\n\006status\030\001 \002(" +
+      "\0162(.se.lth.immun.protocol.Status.StatusT" +
+      "ype\022\021\n\tstatusMsg\030\002 \001(\t\022\020\n\010progress\030\003 \001(\001",
+      "\022\023\n\013progressMax\030\004 \001(\001\"%\n\nStatusType\022\017\n\013l" +
+      "oadingMzML\020\001\022\006\n\002up\020\002\"\"\n\005Error\022\014\n\004type\030\001 " +
+      "\002(\005\022\013\n\003msg\030\002 \002(\t\"\027\n\007MsgSize\022\014\n\004size\030\001 \002(" +
+      "\007\"\244\001\n\013MasterReply\022-\n\006status\030\001 \001(\0132\035.se.l" +
+      "th.immun.protocol.Status\022-\n\006traces\030\002 \001(\013" +
+      "2\035.se.lth.immun.protocol.Traces\022\n\n\002id\030\017 " +
+      "\001(\005\022+\n\005error\030c \001(\0132\034.se.lth.immun.protoc" +
+      "ol.Error*%\n\014TransferMode\022\n\n\006DOUBLE\020\000\022\t\n\005" +
+      "FLOAT\020\001B\'\n\025se.lth.immun.protocolB\016MSData" +
+      "Protocol"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
