@@ -72,6 +72,9 @@ object Panther extends CLIApp {
 		println("             file: "+params.mzML.value)
 		println("          address: "+params.address.value)
 		println("  (heap) mem used: %d Mb".format(totMemMb))
+		println("")
+		println(" swaths:")
+		println(ds.dmLevel2.keys.mkString("\n"))
 		
 		system.awaitTermination
 		println("done")

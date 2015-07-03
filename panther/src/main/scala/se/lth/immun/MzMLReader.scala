@@ -100,20 +100,20 @@ object MzMLReader {
 		val iwDef = iws.map(isolationWindow2Range).toSet
 		val siDef = sis.map(trippleTOFselectedIon2Range).toSet
 		if (iwDef.isEmpty && siDef.isEmpty) None
-		else Some(iwDef ++ siDef)
-		
+		else if (iwDef.nonEmpty) Some(iwDef)
+		else Some(siDef)
 	}
 	
 	def isolationWindow2Range(iw:IsolationWindow):MzRange = {
 		val iwTarget = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
-		val iwLower = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
-		val iwUpper = iw.cvParams.find(_.accession == ISOLATION_WINDOW_TARGET)
+		val iwLower = iw.cvParams.find(_.accession == ISOLATION_WINDOW_LOWER_OFF)
+		val iwUpper = iw.cvParams.find(_.accession == ISOLATION_WINDOW_UPPER_OFF)
 		
 		(iwTarget, iwLower, iwUpper) match {
 			case (Some(iwt), Some(iwl), Some(iwu)) =>
 				val tmz = iwt.value.get.toDouble
-				val lmz = iwt.value.get.toDouble
-				val umz = iwt.value.get.toDouble
+				val lmz = iwl.value.get.toDouble
+				val umz = iwu.value.get.toDouble
 				MzRange(tmz-lmz, tmz+umz)
 			case _ =>
 				throw new Exception("Erroneously defined isolation window: target=%s, lower=%s, upper=%s".format(iwTarget, iwLower, iwUpper))

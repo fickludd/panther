@@ -24,6 +24,7 @@ class SimpleDataStore extends DataStore with DataStorer {
 			fragHighMz:Double
 	):DataTrace = {
 		val dmKey = dmLevel2.keys.maxBy(overlap(precLowMz, precHighMz))
+		println("selected swath "+dmKey+" for precursor %.4f-%.4f".format(precLowMz, precHighMz))
 		val dm = dmLevel2(dmKey)
 		DataTrace(dm.times, dm.trace(fragLowMz, fragHighMz))
 	}

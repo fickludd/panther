@@ -16,7 +16,7 @@ object Kitten {
 	def main(args: Array[String]) = {
 		val system = ActorSystem()
 		val server = new InetSocketAddress("localhost", 12345)
-		//val server = new InetSocketAddress("130.235.249.157", 12346)
+		//val server = new InetSocketAddress("130.235.249.157", 33333)
 		val infinitePoller = system.actorOf(Props[InfinitePoller])
 		val client = system.actorOf(MSDataProtocolActors.ClientInitiator.props(server, infinitePoller))
 		system.awaitTermination
@@ -34,28 +34,39 @@ object Kitten {
 				sendRandAssay
  
 			case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
-				val (nf, nd) = countDataPoints(msg)
-				println("KITTEN| parsed %d bytes in %d ms. %d floats, %d doubles, CHECKSUM=%d".format(nBytes, timeTaken, nf, nd, checkSum))
+				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
+				println("First frag prec mz:"+msg.getTraces.getFragmentList.head.getFragment.getPrecursor)
+				val (fFloat, fDouble, pFloat, pDouble) = countDataPoints(msg)
+				def checkSizes(xs:Seq[(Int, Int)], tag:String) =
+					xs.find(t => t._1 != t._2).map(t =>
+						println("Different %s time and intensity array lengths: %d vs %d".format(tag, t._1, t._2))
+					)
+				
+				def printIfError(xs:Seq[(Int, Int)]) =
+					if (xs.exists(t => t._1 != t._2))
+						println(msg)
+						
+				/*checkSizes(fFloat, "FRAG_FLOAT")
+				checkSizes(fDouble, "FRAG_DOUBLE")
+				checkSizes(pFloat, "PREC_FLOAT")
+				checkSizes(pDouble, "PREC_DOUBLE")
+				*/
+				printIfError(fDouble)
 				sendRandAssay
 		}
 		
 		
 		
-		def countDataPoints(msg:MasterReply):(Int, Int) = {
+		def countDataPoints(msg:MasterReply) = {
 			val traces = msg.getTraces
-			val nFragFloat = traces.getFragmentList.map(f => {
-				f.getSmallTrace.getTimeCount
-			}).sum
-			val nFragDouble = traces.getFragmentList.map(f => {
-				f.getTrace.getTimeCount
-			}).sum
-			val nPrecFloat = traces.getPrecursorList.map(p => {
-				p.getSmallTrace.getTimeCount
-			}).sum
-			val nPrecDouble = traces.getPrecursorList.map(p => {
-				p.getTrace.getTimeCount
-			}).sum
-			(nFragFloat + nPrecFloat, nFragDouble + nPrecDouble)
+			val fl = traces.getFragmentList
+			val pl = traces.getPrecursorList
+			
+			val fragFloatCounts 	= fl.map(f => (f.getSmallTrace.getTimeCount, 	f.getSmallTrace.getIntensityCount))
+			val fragDoubleCounts 	= fl.map(f => (f.getTrace.getTimeCount, 		f.getTrace.getIntensityCount))
+			val precFloatCounts 	= pl.map(f => (f.getSmallTrace.getTimeCount, 	f.getSmallTrace.getIntensityCount))
+			val precDoubleCounts 	= pl.map(f => (f.getTrace.getTimeCount, 		f.getTrace.getIntensityCount))
+			(fragFloatCounts, fragDoubleCounts, precFloatCounts, precDoubleCounts)
 		}
 		
 		
@@ -81,7 +92,7 @@ object Kitten {
 						.setFragment(Bounds.newBuilder.setLmz(mz2-diff2).setHmz(mz2+diff2))
 					)
 			}
-			req.setTransferMode(TransferMode.FLOAT)
+			req.setTransferMode(TransferMode.DOUBLE)
 			MasterRequest.newBuilder.setGetTracesFor(req).build
 		}
 		
