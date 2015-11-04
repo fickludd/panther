@@ -43,7 +43,7 @@ class SimpleDataStore extends DataStore with DataStorer {
 		if (totalSpectra <= 0) DataStore.UnInitialized
 		else {
 			val loadedSpectra = dmLevel1.spectra.length + dmLevel2.map(_._2.spectra.length).sum
-			if (loadedSpectra == totalSpectra)
+			if (loadedSpectra < totalSpectra)
 				DataStore.Loading(loadedSpectra, totalSpectra)
 			else
 				DataStore.Ready
