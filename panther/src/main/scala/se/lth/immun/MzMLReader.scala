@@ -1,5 +1,6 @@
 package se.lth.immun
 
+import se.jt.CLIBar
 import se.lth.immun.xml.XmlReader
 import se.lth.immun.mzml._
 import se.lth.immun.mzml.ghost._
@@ -33,22 +34,33 @@ object MzMLReader {
 	def setupDataStructures(ds:DataStorer, params:PantherParams)(n:Int) = {
 		println("this file contains %d spectra".format(n))
 		ds.setNumSpectra(n)
+		totalSpecs = n
+		print(bar.reference)
 	}
 	
 	val t0 = System.currentTimeMillis
 	val specQueue = new Queue[Future[(GhostSpectrum, DataSpectrum)]]
+	val bar = new CLIBar
+	var totalSpecs = 0
+	var handledSpecs = 0
+	
 	def handleSpectrum(ds:DataStorer, params:PantherParams)(s:Spectrum):Unit = {
 		if (params.startSpectrumIndex < params.lastSpectrumIndex &&
 				(s.index < params.startSpectrumIndex || 
 				s.index > params.lastSpectrumIndex))
 			return
 		
-		if (s.index % 200 == 0) 
-			println("at spectrum %8d %8ds   %d / %d Mb".format(
+		if (params.verbose) {
+			if (s.index % params.verboseFreq == 0) 
+				println("at spectrum %8d %8ds   %d / %d Mb".format(
 					s.index,
 					(System.currentTimeMillis - t0) / 1000, 
 					Runtime.getRuntime().totalMemory() / 1000000, 
 					Runtime.getRuntime().maxMemory() / 1000000))
+		} else {
+			handledSpecs += 1
+			print(bar.update(handledSpecs, totalSpecs))
+		}
 		
 		specQueue += Future {
 				val gs = GhostSpectrum.fromSpectrum(s)

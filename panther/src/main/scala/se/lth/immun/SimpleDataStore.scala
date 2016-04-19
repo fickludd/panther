@@ -2,7 +2,7 @@ package se.lth.immun
 
 import scala.collection.mutable.HashMap
 
-class SimpleDataStore extends DataStore with DataStorer {
+class SimpleDataStore(params:PantherParams) extends DataStore with DataStorer {
 
 	import DataStorer._
 	
@@ -24,7 +24,8 @@ class SimpleDataStore extends DataStore with DataStorer {
 			fragHighMz:Double
 	):DataTrace = {
 		val dmKey = dmLevel2.keys.maxBy(overlap(precLowMz, precHighMz))
-		println("selected swath "+dmKey+" for precursor %.4f-%.4f".format(precLowMz, precHighMz))
+		if (params.verbose)
+			println("selected swath "+dmKey+" for precursor %.4f-%.4f".format(precLowMz, precHighMz))
 		val dm = dmLevel2(dmKey)
 		DataTrace(dm.times, dm.trace(fragLowMz, fragHighMz))
 	}

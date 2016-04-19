@@ -15,8 +15,8 @@ object Kitten {
 	
 	def main(args: Array[String]) = {
 		val system = ActorSystem()
-		val server = new InetSocketAddress("localhost", 12345)
-		//val server = new InetSocketAddress("130.235.249.157", 33333)
+		//val server = new InetSocketAddress("localhost", 12345)
+		val server = new InetSocketAddress("130.235.249.157", 22222)
 		val infinitePoller = system.actorOf(Props[InfinitePoller])
 		val client = system.actorOf(MSDataProtocolActors.ClientInitiator.props(server, infinitePoller))
 		system.awaitTermination
@@ -35,7 +35,7 @@ object Kitten {
  
 			case MSDataReply(msg, nBytes, checkSum, timeTaken, remote) =>
 				println("KITTEN| parsed %d bytes in %d ms. CHECKSUM=%d".format(nBytes, timeTaken, checkSum))
-				println("First frag prec mz:"+msg.getTraces.getFragmentList.head.getFragment.getPrecursor)
+				//println("First frag prec mz:"+msg.getTraces.getFragmentList.head.getFragment.getPrecursor)
 				val (fFloat, fDouble, pFloat, pDouble) = countDataPoints(msg)
 				def checkSizes(xs:Seq[(Int, Int)], tag:String) =
 					xs.find(t => t._1 != t._2).map(t =>

@@ -24,7 +24,7 @@ object Panther extends CLIApp {
 	
 		
 	val params = new PantherParams
-	val ds = new SimpleDataStore
+	val ds = new SimpleDataStore(params)
 	
 	var properties = new Properties
 	properties.load(this.getClass.getResourceAsStream("/pom.properties"))
@@ -74,7 +74,12 @@ object Panther extends CLIApp {
 		println("  (heap) mem used: %d Mb".format(totMemMb))
 		println("")
 		println(" swaths:")
-		println(ds.dmLevel2.keys.mkString("\n"))
+		println(ds.dmLevel2.keys
+					.map(_.toSeq.sortBy(_.low))
+					.toSeq
+					.sortBy(_.head.low)
+					.mkString("\n")
+				)
 		
 		system.awaitTermination
 		println("done")

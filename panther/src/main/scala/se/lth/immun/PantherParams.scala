@@ -13,6 +13,8 @@ class PantherParams extends Params {
 	val mockBig = false					## "set to use big mock data instead of real"
 	val address = "localhost:12345" 	## "address to offert MSData service on. IP-ADDRESS:PORT"
 	val specQueueSize = 10				## "spectrum to parse in parallell"
+	val verbose = false					## "set to enable more output"
+	val verboseFreq = 100				## "print verbose output every n:th line"
 	
 	val mzML = ReqString("needed file ")
 	
