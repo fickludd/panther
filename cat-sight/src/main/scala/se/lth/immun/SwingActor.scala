@@ -79,6 +79,7 @@ class SwingActor(params:CatSightParams) extends Actor with Reactor {
 	import java.awt.event.InputEvent
 	GlobalKeyBinder.bindings += ((KeyEvent.VK_Z, InputEvent.SHIFT_MASK), () => gui.zoomMode.next)
 	GlobalKeyBinder.bindings += ((KeyEvent.VK_S, InputEvent.SHIFT_MASK), () => gui.selectMode.next)
+	GlobalKeyBinder.bindings += ((KeyEvent.VK_N, InputEvent.SHIFT_MASK), () => gui.nextAssays)
 	
 	reactions += {
 		case e:ButtonClicked if e.source == gui.addAssays =>

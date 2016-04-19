@@ -27,6 +27,8 @@ object TracePlotter {
 	case class RemoveAssayTracePeak(peakID:Int) extends TracePlotterMsg
 	
 	case class PlotUpdate(id:PlotID, plot:BufferedImage, control:PlotsControl[Datum, Datum, Datum])
+	
+	case class ConfirmSize(d:Dimension)
 }
 
 class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends Actor {
@@ -37,7 +39,8 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 	import PlotBuffer._
 	import PeakIntegrator._
 	
-	var size = new Dimension(1000, 600)
+	var nextSize = new Dimension(1000, 600)
+	var size = nextSize
 	var plot:Option[LinePlot[Datum]] = None
 	val assayPeakPlot = new AssayPeakPlot
 	val peakIDs = new IDGenerator
@@ -55,9 +58,16 @@ class TracePlotter(swingActor:ActorRef, id:PlotID, hideLegend:Boolean) extends A
 			println(msg)
 			
 		case NewSize(_, d) =>
-			if (d.getHeight > 0 && d.getWidth > 0)
-			size = d
-			plot.foreach(p => swingActor ! plotUpdate(p))
+			if (d.getHeight > 0 && d.getWidth > 0) {
+				nextSize = d
+				self ! ConfirmSize(d)
+			}
+			
+		case ConfirmSize(d) =>
+			if (d.getWidth == nextSize.getWidth && d.getHeight == nextSize.getHeight) {
+				size = nextSize
+				plot.foreach(p => swingActor ! plotUpdate(p))
+			}
 				
 		case Select(fromID, f) =>
 			println("NEW SELECT from %s to %s ".format(fromID, id))

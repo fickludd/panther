@@ -135,4 +135,10 @@ class GUI(params: CatSightParams) extends SimpleSwingApplication {
 			sources.toSeq.sortBy(_._1.toString).map(t => new SourceLabel(t._2.name))
 		sourceLegend.revalidate
 	}
+	
+	def nextAssays:Unit = {
+		val currSel = assayList.selection.indices
+		assayList.selection.indices.clear
+		assayList.selection.indices ++= (currSel.max + 1) to (currSel.max + currSel.size)
+	}
 }
