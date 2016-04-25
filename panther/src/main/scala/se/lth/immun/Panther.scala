@@ -24,7 +24,6 @@ object Panther extends CLIApp {
 	
 		
 	val params = new PantherParams
-	val ds = new SimpleDataStore(params)
 	
 	var properties = new Properties
 	properties.load(this.getClass.getResourceAsStream("/pom.properties"))
@@ -42,12 +41,23 @@ object Panther extends CLIApp {
 		println("  %s %s".format(name, version))
 		println("binding to "+address)
 		
+		val ds:DataStore with DataStorer = 
+			params.dataStore.value match {
+				case "simple" => new SimpleDataStore(params)
+				case "flexible" => new FlexibleDataStore(params)
+				case x =>
+					throw new Exception("Unknown data store type '%s'".format(x))
+			}
+		
+		println("data store: "+params.dataStore.value)
+		
 		val logger = system.actorOf(Props[Logger])
 		val server = system.actorOf(MSDataProtocolActors.ServerInitiator.props(
 				address, 
 				logger, 
 				() => system.actorOf(RequestHandler.props(ds))
 			), name = "server")
+		
 		
 		
 		if (params.mockBig)
@@ -73,13 +83,7 @@ object Panther extends CLIApp {
 		println("          address: "+params.address.value)
 		println("  (heap) mem used: %d Mb".format(totMemMb))
 		println("")
-		println(" swaths:")
-		println(ds.dmLevel2.keys
-					.map(_.toSeq.sortBy(_.low))
-					.toSeq
-					.sortBy(_.head.low)
-					.mkString("\n")
-				)
+		println(ds.contentSummary)
 		
 		system.awaitTermination
 		println("done")
@@ -88,13 +92,16 @@ object Panther extends CLIApp {
 	
 	def getReader(path:String):XmlReader = {
 		val f = new File(path)
-		if (path.toLowerCase.endsWith(".mzml.gz"))
-			new XmlReader(new BufferedReader(new InputStreamReader(
-							new GZIPInputStream(new FileInputStream(f)))))
-		else if (path.toLowerCase.endsWith(".mzml"))
-			new XmlReader(new BufferedReader(new FileReader(f)))
-		else
-			throw new Exception("Unknown file format '%s'".format(path))
+		val r = 
+			if (path.toLowerCase.endsWith(".mzml.gz"))
+				new XmlReader(new BufferedReader(new InputStreamReader(
+								new GZIPInputStream(new FileInputStream(f)))))
+			else if (path.toLowerCase.endsWith(".mzml"))
+				new XmlReader(new BufferedReader(new FileReader(f)))
+			else
+				throw new Exception("Unknown file format '%s'".format(path))
+		r.force = params.force
+		r
 	}
 	
 }

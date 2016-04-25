@@ -35,7 +35,8 @@ object MzMLReader {
 		println("this file contains %d spectra".format(n))
 		ds.setNumSpectra(n)
 		totalSpecs = n
-		print(bar.reference)
+		println(bar.reference)
+		print(bar.update(0, totalSpecs))
 	}
 	
 	val t0 = System.currentTimeMillis
@@ -73,8 +74,8 @@ object MzMLReader {
 				var k = 0
 				for (j <- 0 until mzs.length)
 					if (ints(j) != 0) {
-						intsWithout0(k)=ints(j).toFloat
-						mzsWithout0(k)=mzs(j)
+						intsWithout0(k) = ints(j).toFloat
+						mzsWithout0(k) 	= mzs(j)
 						k+=1
 					}
 				(gs, DataSpectrum(gs.scanStartTime.toFloat, mzsWithout0, intsWithout0))
@@ -90,18 +91,16 @@ object MzMLReader {
 		for (i <- 0 until n) {
 			val fds = specQueue.dequeue
 			val (gs, dataSpectrum) = Await.result(fds, Duration.Inf)
-			if (gs.msLevel == 1)
-				ds.addL1Spectrum(dataSpectrum)
-				
-			else if (gs.msLevel == 2) {
-				getLevel2Key(gs) match {
-					case Some(key) =>
-						ds.addL2Spectrum(key, dataSpectrum)
-					case None => {}
-				}
-				
-			} else
-				throw new Exception("unhandlable ms level "+gs.msLevel)
+			gs.msLevel match {
+				case GhostSpectrum.MS1 => ds.addL1Spectrum(dataSpectrum)
+				case GhostSpectrum.MS2(precMz, isoWindow) =>
+					isoWindow.map(iw => Set(MzRange(iw.low, iw.high))).orElse(getLevel2Key(gs)) match {
+						case Some(key) =>
+							ds.addL2Spectrum(key, dataSpectrum)
+						case None => {}
+					}
+				case _ => throw new Exception("unhandlable ms level "+gs.msLevel)
+			}
 		}
 	}
 	

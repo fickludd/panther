@@ -50,6 +50,14 @@ class SimpleDataStore(params:PantherParams) extends DataStore with DataStorer {
 				DataStore.Ready
 		}
 	
+	def contentSummary = 
+		" swaths:\n"+
+			dmLevel2.keys
+				.map(_.toSeq.sortBy(_.low))
+				.toSeq
+				.sortBy(_.head.low)
+				.mkString("\n")
+	
 	def setNumSpectra(n:Int):Unit = 
 		totalSpectra = n
 		

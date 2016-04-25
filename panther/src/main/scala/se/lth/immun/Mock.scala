@@ -6,7 +6,7 @@ object Mock {
 	
 	import DataStorer._
 	
-	def small(ds:SimpleDataStore) = {
+	def small(ds:DataStorer) = {
 		def mockSpectrum(t:Float, int1:Float, int2:Float):DataSpectrum = 
 			DataSpectrum(t, 
 				400.0 until 600.0 by 0.1, 
@@ -28,7 +28,7 @@ object Mock {
 	}
 	
 	
-	def big(ds:SimpleDataStore) = {
+	def big(ds:DataStorer) = {
 		def mockSpectrum(t:Float):DataSpectrum = {
 			val mzs = 400.0 until 1200.0 by 1 
 			DataSpectrum(t, 

@@ -2,7 +2,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>se.lth.immun</groupId>
   <artifactId>Panther</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0
+</version>
   <inceptionYear>2015</inceptionYear>
   <properties>
     <scala.version>2.10.0</scala.version>
@@ -29,16 +30,6 @@
     	<scope>test</scope>
     </dependency>
 
-  	<dependency>
-  		<groupId>se.lth.immun</groupId>
-  		<artifactId>MzML</artifactId>
-  		<version>1.2.4</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>se.lth.immun</groupId>
-  		<artifactId>Xml</artifactId>
-  		<version>1.0.0</version>
-  	</dependency>
     <dependency>
     	<groupId>com.typesafe.akka</groupId>
     	<artifactId>akka-actor_2.10</artifactId>
@@ -58,6 +49,11 @@
     	<groupId>se.lth.immun</groupId>
     	<artifactId>MSDataProtocolActors</artifactId>
     	<version>0.4.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>se.lth.immun</groupId>
+    	<artifactId>MzML</artifactId>
+    	<version>1.3.2</version>
     </dependency>
   </dependencies>
   

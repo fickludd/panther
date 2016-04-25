@@ -75,7 +75,6 @@ case class DataSpectrum(time: Float, mz: Seq[Double], intensity: Seq[Float]) {
 
 		return 0
 	}
-
 }
 
 case class DataTrace(time: Seq[Float], intensity: Seq[Float])
@@ -99,6 +98,8 @@ trait DataStore {
 		fragHighMz: Double): DataTrace
 
 	def status: DataStore.Status
+	
+	def contentSummary: String
 }
 
 object DataStorer {

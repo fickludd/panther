@@ -11,10 +11,13 @@ class PantherParams extends Params {
 	val startSpectrumIndex = 0 			## "First spectrum to use"
 	val lastSpectrumIndex = 0 			## "Last spectrum to use"
 	val mockBig = false					## "set to use big mock data instead of real"
+	val dataStore = "simple"			## "data store to use (simple or flexible). Simple is fast but only works for static DIA windows setups, ei. one SWATH per peptide."
+	
 	val address = "localhost:12345" 	## "address to offert MSData service on. IP-ADDRESS:PORT"
 	val specQueueSize = 10				## "spectrum to parse in parallell"
 	val verbose = false					## "set to enable more output"
 	val verboseFreq = 100				## "print verbose output every n:th line"
+	val force = false					## "attempt to force mzML read even if some required attributes are missing"
 	
 	val mzML = ReqString("needed file ")
 	
